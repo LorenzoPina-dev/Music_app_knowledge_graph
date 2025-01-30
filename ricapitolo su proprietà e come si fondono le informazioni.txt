@@ -1,0 +1,176 @@
+data:
+	
+	playlistdb che ha la lista di playlist
+	|
+	 ->	ogni song in songdb ha le caratteristiche
+		|
+		 -> ogni song ha il suo autore e wikidata ha i dati 
+			|
+			 ->posizione nascita autore
+			 
+Proprietà:
+	playlist[
+		name,
+		pid,
+		modified_at,
+		num_tracks,
+		num_albums,
+		num_followers,
+		tracks] da playlist_dataset
+	canzone[
+		artist_name,
+		track_uri(spotify),
+		artist_uri(spotify),
+		track_name,
+		album_uri(spotify),
+		duration_ms,
+		album_name] da playlist_dataset
+	canzone[artist_name,
+		track_name,
+		release_date,
+		genre,
+		lyrics,
+		len,
+		dating,
+		violence,
+		world/life,
+		night/time,
+		shake the audience,
+		family/gospel,
+		romantic,
+		communication,
+		obscene,
+		music,
+		movement/places,
+		light/visual perceptions,
+		family/spiritual,
+		like/girls,
+		sadness,
+		feelings,
+		danceability,
+		loudness,
+		acousticness,
+		instrumentalness,
+		valence,
+		energy,
+		topic,
+		age] da music_dataset
+	autore[
+		  "occupation",
+		  "located in the administrative territorial entity",
+		  "genre",
+		  "country",
+		  "performer",
+		  "image",
+		  "place of birth",
+		  "sex or gender",
+		  "GND ID",
+		  "spouse",
+		  "instance of",
+		  "author",
+		  "director",
+		  "composer",
+		  "AniList staff ID",
+		  "YouTube handle",
+		  "languages spoken, written or signed",
+		  "present in work",
+		  "official name",
+		  "YouTube video ID",
+		  "native label",
+		  "name in kana",
+		  "Spotify artist ID",
+		  "Discogs artist ID",
+		  "X username",
+		  "Instagram username",
+		  "Facebook username",
+		  "work period (start)",
+		  "duration",
+		  "member count",
+		  "YouTube channel ID",
+		  "record label",
+		  "Google Knowledge Graph ID",
+		  "subclass of",
+		  "Apple Music artist ID (U.S. version)",
+		  "broadcast by",
+		  "part of",
+		  "Commons category",
+		  "next higher rank",
+		  "MyAnimeList people ID",
+		  "voice type",
+		  "MusicBrainz artist ID",
+		  "pronunciation audio",
+		  "member of",
+		  "country of origin",
+		  "has part(s)",
+		  "AniDB person ID",
+		  "date of birth",
+		  "inception",
+		  "dissolved, abolished or demolished date",
+		  "publication date",
+		  "Fandom article ID",
+		  "Freebase ID",
+		  "lyricist",
+		  "TikTok username",
+		  "family name",
+		  "given name",
+		  "FactGrid item ID",
+		  "Yle topic ID",
+		  "official website",
+		  "social media followers",
+		  "topic's main category",
+		  "occupation",
+		  "located in the administrative territorial entity",
+		  "genre",
+		  "country",
+		  "performer",
+		  "image",
+		  "place of birth",
+		  "sex or gender",
+		  "GND ID",
+		  "spouse",
+		  "instance of",
+		  "author",
+		  "director",
+		  "composer",
+		  "AniList staff ID",
+		  "YouTube handle",
+		  "languages spoken, written or signed",
+		  "present in work",
+		  "official name",
+		  "YouTube video ID",
+		  "native label",
+		  "name in kana",
+		  "Spotify artist ID",
+		  "Discogs artist ID",
+		  "X username",
+		  "Instagram username",
+		  "Facebook username",
+		  "work period (start)",
+		  "duration",
+		  "member count",
+		  "YouTube channel ID",
+		  "record label",
+		  "Google Knowledge Graph ID",
+		  "subclass of",
+		  "Apple Music artist ID (U.S. version)",
+		  "broadcast by",
+		  "part of",
+		  "Commons category"
+		]
+	
+	possibili inferibili=
+		playlist=[
+			genere medio
+			parametri medi]
+		
+
+api:
+	numeroPlaylist
+	getNplaylist 
+	getSongPlaylist
+	getAutoriInPlaylist
+	getAutoriSong
+	getLocation
+	
+
+

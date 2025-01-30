@@ -1,20 +1,31 @@
-// Creazione della mappa centrata sull'Italia
-const map = L.map('map').setView([41.9028, 12.4964], 6);
+var playlists=[];
+var songs=[];
+let start=0;
+let end=50;
+var content=null;
+async function fetchJson(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Errore HTTP! Status: ${response.status}`);
+        
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Errore nella richiesta:", error);
+    }
+}
 
-// Aggiunta del layer della mappa (OpenStreetMap)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap contributors',
-}).addTo(map);
 
-// Fetch dei dati dal server
-fetch('/api/locations')
-  .then((response) => response.json())
-  .then((locations) => {
-    locations.forEach((location) => {
-      // Aggiunge un marker per ogni location
-      L.marker([location.lat, location.lng])
-        .addTo(map)
-        .bindPopup(`<b>${location.name}</b>`);
+document.addEventListener("DOMContentLoaded", function () {
+    content=document.getElementById("content");
+    fetchJson(`/api/getNplaylist?end=${end}&start=${start}`).then( data=> {
+        playlists=data;
+        playlists.forEach(p => {
+            var div = document.createElement("div");
+            div.innerHTML = `<h2>${p.name}</h2>
+                            <h3>${p.num_tracks}</h3> `;
+            content.appendChild(div);
     });
-  })
-  .catch((error) => console.error('Errore durante il fetch:', error));
+}).catch(err =>console.error(err));
+    
+});
