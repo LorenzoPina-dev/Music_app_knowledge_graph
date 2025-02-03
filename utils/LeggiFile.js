@@ -1,7 +1,7 @@
 const fs = require('fs');
+//import fs from 'fs';
 const pathSongs="music_dataset.csv";
-const pathPlaylists = "Playlist.json";
-const pathPlaylistsList = "Spotify_dataset/data";
+const pathPlaylistsList = "./data";
 function getSongs() {
     const file=fs.readFileSync(pathSongs);
 
@@ -45,4 +45,5 @@ for(const playlists of ris) {
     });
 }
 */
+//export default getListPlaylists;
 module.exports = { getSongs, getListPlaylists };

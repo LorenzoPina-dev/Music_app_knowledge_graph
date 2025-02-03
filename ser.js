@@ -1,4 +1,4 @@
-const https = require('https');
+/*const https = require('https');
 const fs = require('fs');
 
 const wikydata="query.wikidata.org";
@@ -161,5 +161,45 @@ getAttMusicDataset();
   } catch (err) {
     console.error('Error writing to file:', err);
   }*/
+    require('dotenv').config();
+    const SpotifyWebApi = require('spotify-web-api-node');
+const fs = require('fs');
+    const spotifyApi = new SpotifyWebApi({
+      clientId: process.env.CLIENT_ID,      // Sostituisci con il tuo clientId
+      clientSecret:  process.env.CLIENT_SECRET, // Sostituisci con il tuo clientSecret
+      redirectUri:  process.env.CLIENT_REDIRECT_URI // Imposta l'URI di redirezione
+    });
+    
+    // Funzione per ottenere il token
+    async function getAccessToken() {
+      try {
+        const data = await spotifyApi.clientCredentialsGrant();
+        spotifyApi.setAccessToken(data.body['access_token']);
+        console.log("Token ottenuto:", data.body['access_token']);
+      } catch (error) {
+        console.error('Errore nel recupero del token:', error);
+      }
+    }
+    
+    // Funzione per ottenere audio features
+    async function getAudioFeatures(trackId) {
+      try {
+        const data = await spotifyApi.getAudioAnalysisForTrack(trackId);
+        console.log("Audio Features:", data.body);
+        fs.writeFileSync('audio_features.txt', JSON.stringify(data.body, null, 2));
+      } catch (error) {
+        console.error("Errore nel recupero delle audio features:", error);
+      }
+    }
+    
+    // Esegui
+    async function main() {
+      await getAccessToken();  // Assicurati che il token sia valido
+      const trackId = '0UaMYEvWZi0ZqiDOoHU3YI';  // Un'altra traccia di esempio
 
-  
+      await getAudioFeatures(trackId);
+
+    }
+    
+    main();
+    

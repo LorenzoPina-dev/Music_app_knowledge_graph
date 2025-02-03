@@ -1,6 +1,8 @@
 const express = require('express');
 const fs= require('fs');
 const apiRouter = require("./routers/api.js"); // Importa il router
+const apiWikiDataRouter = require("./routers/apiWikiData.js"); // Importa il router
+const apiSpotifyRouter = require("./routers/apispotify.js"); // Importa il router
 const app = express();
 const port = 3000;
 
@@ -12,7 +14,14 @@ const locations = [
   { name: 'Napoli', lat: 40.8518, lng: 14.2681 },
 ];
 
+app.use("/api/spotify", apiSpotifyRouter); // Usa le rotte sotto "/users"
+app.use("/api/wikidata", apiWikiDataRouter); // Usa le rotte sotto "/users"
+
 app.use("/api", apiRouter); // Usa le rotte sotto "/users"
+
+app.get('/api/locations', (req, res) => {
+  res.json(locations);
+});
 
 
 // Serve i file statici (per il frontend)
