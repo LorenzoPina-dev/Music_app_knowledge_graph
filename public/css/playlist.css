@@ -1,0 +1,82 @@
+html, body {
+    height: inherit;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;  /* Center the table vertically in the viewport */
+    margin: 0;  /* Reset default margin */
+}
+
+table {
+    width: 70%;
+    border-collapse: collapse;  /* Remove spacing between table cells */
+}
+
+tr {
+    max-height: 41px;  /* Set maximum row height */
+}
+
+table, tr, th, td {
+    border: none;
+}
+
+th, td {
+    padding: 10px;
+    vertical-align: middle;
+    height: 41px;  /* Ensure cell has a fixed height */
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 20px;
+}
+
+th {
+    background-color: rgb(21, 85, 47);
+}
+
+tr:first-child {
+    position: sticky;
+
+    top: 0;
+}
+
+/* playlist name */
+th:first-child {
+    font-size: larger;
+    font-weight: bold;
+    color: rgb(0, 211, 0);
+}
+
+tr:nth-child(2n) {
+    background-color: #434343;
+}
+
+tr:nth-child(2n+1) {
+    background-color: #333;
+}
+
+td > a {
+    color: white;
+    text-decoration: none;
+}
+
+/* song name */
+td:nth-child(1) {
+    width: 40%
+}
+
+/* album name */
+td:nth-child(2) {
+    width: calc(100vw * (0.7 * 0.15));
+    max-width: calc(100vw * (0.7 * 0.15));
+}
+
+/* artist name */
+td:nth-child(3) {
+    max-width: 45%;
+}

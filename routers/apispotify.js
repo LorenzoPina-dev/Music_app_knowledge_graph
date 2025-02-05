@@ -4,7 +4,6 @@ const SpotifyWebApi= require('spotify-web-api-node');
 const fs= require('fs');
 const router = express.Router();
 
-
 const spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,      // Sostituisci con il tuo clientId
     clientSecret:  process.env.CLIENT_SECRET, // Sostituisci con il tuo clientSecret

@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(response => response.json()) // Parse response as JSON
         .then(data => renderData(data)) // Handle the data
         .catch(error => console.error('Error:', error)); // Handle errors
-
 });
 
 function renderData(data){
