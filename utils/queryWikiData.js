@@ -43,11 +43,13 @@ select distinct ?artista ?image ?startWork  ?coord where {
 `
 
 const getQueryCanzone=(codiceMusicista, nomeCanzone)=>`
-SELECT ?artista ?canzoni  ?genere ?pubblicazione  ?album WHERE {
-  ?artista wdt:P1902 "${codiceMusicista}".
+SELECT  ?artistaNome ?artista ?genere ?nomeGenere  ?pubblicazione ?oggalbum ?album WHERE {
+  ?artista wdt:P1902 "${codiceMusicista}";
+           rdfs:label ?artistaNome.
           ?canzoni wdt:P175  ?artista.
   ?canzoni rdfs:label "${nomeCanzone}"@en.
           ?canzoni   wdt:P136 ?genere.
+  ?genere rdfs:label ?nomeGenere.
        ?canzoni     wdt:P577 ?pubblicazione.
   ?canzoni wdt:P31 ?in.
   ?in rdfs:label ?instanza.
@@ -57,15 +59,20 @@ SELECT ?artista ?canzoni  ?genere ?pubblicazione  ?album WHERE {
    ?canzoni wdt:P31 	 wd:Q482994.
     
     ?canzoni rdfs:label ?album. 
+    bind(?canzoni as ?oggalbum).
     }
   {
     ?canzoni wdt:P31 	 wd:Q134556.
     ?canzoni wdt:P361 ?a. 
      ?a rdfs:label ?album. 
+    bind(?a as ?oggalbum).
     
     }
+  
    FILTER (lang(?album) = "en")              # Filtra i titoli in inglese
    FILTER (lang(?instanza) = "en")              # Filtra i titoli in inglese
+   FILTER (lang(?artistaNome) = "en")              # Filtra i titoli in inglese
+   FILTER (lang(?nomeGenere) = "en")              # Filtra i titoli in inglese
 
 }`;
 

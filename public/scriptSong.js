@@ -1,7 +1,12 @@
+let codA;
+let nomCanzone;
+
 document.addEventListener("DOMContentLoaded", function () {
     let url=new URL(window.location.href);
     const codiceArtista = url.searchParams.get('idAutore');
     let nomeCanzone = url.searchParams.get('nomeSong');
+    codA = codiceArtista;
+    nomCanzone=nomeCanzone;
     console.log(codiceArtista);
     console.log(nomeCanzone);
     document.getElementById("nomeCanzone").innerHTML = nomeCanzone;
@@ -20,36 +25,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function renderData(data){
     console.log(data);
-    let content=document.getElementById("content");
-    content.innerHTML='';
+    
+    let aAutor=document.getElementById("aArtista");
+    let aAlbum=document.getElementById("aAlbum");
+    let dataPubb=document.getElementById("dataPubblicazione");
+    dataPubb.innerHTML=data[0].pubblicazione.value;
+    aAutor.href=`/artist.html?idAutore=${codA}`;
+    aAlbum.href=`/album.html?idAutore=${codA}&idAlbum=${data[0].album.value}`;
+    aAutor.innerHTML=data[0].artistaNome.value;
+    aAlbum.innerHTML=data[0].album.value;
+    let divGeneri=document.getElementById('divgeneri');
+    divGeneri.innerHTML=''; // Clean previous content
     data.forEach(e => {
         console.log(e);
-        let songDiv=document.createElement("div");
-        let aSong=document.createElement("a");
-        let aAutor=document.createElement("a");
-        let aAlbum=document.createElement("a");
-        let artista;
-        if(e.artists==undefined) {
-            let a=e.artist_uri.split(":");
-            artista=a[2];
-        } else 
-            artista=e.artists[0].id;
-        let album;
-        if(e.album==undefined) {
-            let a=e.album_uri.split(":");
-            album=a[2];
-        } else 
-            album=e.album.id;
-        songDiv.classList.add("riga");
-        aSong.href=`/song.html?nomeSong=${encodeURIComponent(e.track_name)}&idAutore=${artista}`;
-        aAutor.href=`/artist.html?idAutore=${artista}`;
-        aAlbum.href=`/album.html?idAutore=${artista}&idAlbum=${album}`;
-        aSong.innerHTML=e.track_name;
-        aAutor.innerHTML=e.artist_name;
-        aAlbum.innerHTML=e.album_name;
-        songDiv.appendChild(aSong);
-        songDiv.appendChild(aAutor);
-        songDiv.appendChild(aAlbum);
-        content.appendChild(songDiv);
+        let h3=document.createElement('h3');
+        h3.innerHTML=e.nomeGenere.value;
+        divGeneri.appendChild(h3);
     });
 }
