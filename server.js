@@ -7,6 +7,8 @@ const app = express();
 const port = 3000;
 
 
+app.use(express.json()); // Per JSON
+app.use(express.urlencoded({ extended: true })); // Per form-data
 // Dati da mostrare sulla mappa
 const locations = [
   { name: 'Roma', lat: 41.9028, lng: 12.4964 },

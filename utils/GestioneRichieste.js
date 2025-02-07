@@ -12,6 +12,7 @@ function fetchData(url,parse) {
         resolve(parse?JSON.parse(data):data);
       });
     }).on('error', (err) => {
+      console.error('Error:', err);
       reject(err);
     });
   });
@@ -24,7 +25,7 @@ function creaOption(path,destinazione) {
     path: path,
     method: 'GET',
     headers: {
-        'User-Agent': 'MyApp/1.0 (myemail@example.com)',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
         'Content-Type': 'application/sparql-results+json',
     },
   };

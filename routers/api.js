@@ -3,7 +3,7 @@ const fs=require('fs');
 const express = require("express");
 const router = express.Router();
 const { getSongs, getListPlaylists }=require('./../utils/LeggiFile.js');
-const playlists=getListPlaylists(50);
+const playlists=getListPlaylists(10);
 const datasetSongs=getSongs();
 //fs.writeFileSync("what.json",JSON.stringify( datasetSongs));
 // Rotta GET
@@ -73,7 +73,9 @@ router.get('/getAutoreSong', (req, res) => {
 
 
 router.get('/songs', (req, res) => {
-    res.json(datasetSongs.slice(0));
+  fs.writeFileSync('dataSongs.json', JSON.stringify(datasetSongs));
+    res.json(datasetSongs);
+
   });
   router.get('/songPlaylist', (req, res) => {
     const idPlaylist=req.query.idPlaylist;
