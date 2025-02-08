@@ -1,8 +1,0 @@
-SELECT DISTINCT ?song ?l WHERE {
-    ?song wdt:P31 wd:Q482994 .
-    FILTER(BOUND(?song))
-    ?song rdfs:label ?l.
-    FILTER(LANG(?l) = "en")
-}
-OFFSET 200000
-LIMIT 200000

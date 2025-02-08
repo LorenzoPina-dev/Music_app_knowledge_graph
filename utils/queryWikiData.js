@@ -1,5 +1,4 @@
 const getQueryCanzoniMusicista = (codiceMusicista, ancheAlbum=true) => `
-const getQueryCanzoniMusicista = (codiceMusicista, ancheAlbum=true) => `
 SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
     ?artista wdt:P1902 "${codiceMusicista}".
     # ?canzoni rdfs:label "Unwell"@en.
