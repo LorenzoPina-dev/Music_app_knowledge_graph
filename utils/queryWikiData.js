@@ -98,7 +98,7 @@ SELECT distinct ?nomeCanzone ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere
     ?canzoni wdt:P175  ?artista;
         rdfs:label ?nomeCanzone.
     ${nomeCanzone==undefined ?"":
-      `FILTER(REGEX(?nomeCanzone, ${nomeCanzone}, "i") || REGEX(${nomeCanzone}, ?nomeCanzone, "i")).`
+      `FILTER(REGEX(?nomeCanzone, "${nomeCanzone}", "i") || REGEX("${nomeCanzone}", ?nomeCanzone, "i")).`
     }
     FILTER(lang(?nomeCanzone)="en").
     OPTIONAL{
