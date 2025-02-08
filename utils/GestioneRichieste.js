@@ -1,4 +1,3 @@
-
 const https = require('https');
 
 function fetchData(url, parse) {

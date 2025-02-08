@@ -1,4 +1,4 @@
-const getQueryCanzoniMusicista = (codiceMusicista,ancheAlbum=true) => `
+const getQueryCanzoniMusicista = (codiceMusicista, ancheAlbum=true) => `
 SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
     ?artista wdt:P1902 "${codiceMusicista}".
     # ?canzoni rdfs:label "Unwell"@en.
@@ -9,14 +9,14 @@ SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
     ?in rdfs:label ?instanza.
   
     ${ ancheAlbum ?
-        `optional {
+        `OPTIONAL {
             #DA TOGLIERE SE NON DEVO DARE GLI ALBUM
             ?canzoni wdt:P31 wd:Q482994 ;
                      rdfs:label ?album. 
         }` :
         ""
     }
-    optional {
+    OPTIONAL {
         ?canzoni wdt:P31 wd:Q134556 ;
                  wdt:P361 ?a. 
         ?a rdfs:label ?album. 
@@ -43,143 +43,143 @@ select distinct ?artista ?image ?startWork ?coord where {
          # ?birtPlace georss:point ?coord.
 } LIMIT 100`
 
-const getQueryCanzone=(codiceMusicista, nomeCanzone)=>`
-SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazione ?oggalbum ?album WHERE {
+const getQueryCanzone = (codiceMusicista, nomeCanzone) => `
+SELECT distinct ?canzoni ?artistaNome ?artista ?genere ?nomeGenere ?pubblicazione ?oggalbum ?album WHERE {
     ?artista wdt:P1902 "${codiceMusicista}";
         rdfs:label ?artistaNome.
-    FILTER (lang(?artistaNome) = "en")              # Filtra i titoli in inglese
+    FILTER (lang(?artistaNome) = "en")
     ?canzoni wdt:P175  ?artista;
         rdfs:label ?nomeCanzone.
-    optional{
+    OPTIONAL {
         ?canzoni rdfs:label "${nomeCanzone}"@en;
-      }
+    }
     FILTER(LCASE(?nomeCanzone)=LCASE("${nomeCanzone}"@en)).
     #FILTER(lang(?nomeCanzone)="en").
-    optional{
+    OPTIONAL {
         ?canzoni wdt:P577 ?pubblicazione;
-     }
-    optional{
+    }
+    OPTIONAL {
         ?canzoni wdt:P361 ?a. 
         ?a wdt:P577 ?pubblicazione.
-      }
-    optional{
+    }
+    OPTIONAL {
         ?canzoni wdt:P136 ?genere.
         ?genere rdfs:label ?nomeGenere.
-      }
-    optional{
+    }
+    OPTIONAL {
         ?canzoni wdt:P361 ?a. 
         ?a wdt:P136 ?genere.
         ?genere rdfs:label ?nomeGenere.
-      }
-    FILTER (lang(?nomeGenere) = "en")              # Filtra i titoli in inglese
-    optional{
+    }
+    FILTER (lang(?nomeGenere) = "en")
+    OPTIONAL {
         ?canzoni wdt:P31 	 wd:Q482994.
         ?canzoni rdfs:label ?album. 
-        FILTER (lang(?album) = "en")              # Filtra i titoli in inglese
+        FILTER (lang(?album) = "en")
         bind(?canzoni as ?oggalbum).
     }
-    optional{
+    OPTIONAL {
         ?canzoni wdt:P361 ?a. 
         ?a rdfs:label ?album. 
-        FILTER (lang(?album) = "en")              # Filtra i titoli in inglese
+        FILTER (lang(?album) = "en")
         bind(?a as ?oggalbum).
     }
-}limit 100
+} LIMIT 100
 `;
 
-const getQueryCanzoniFatteDaId=(artists,nomeCanzone=undefined)=>`
+const getQueryCanzoniFatteDaId = (artists, nomeCanzone=undefined) => `
 SELECT distinct ?nomeCanzone ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazione ?oggalbum ?album WHERE {
 
     #bind(wd:Q4879921 as ?canzoni) .
   
-  VALUES ?artista { ${artists.map(q => `wd:${q}`).join(" ")} }.
-  ?artista rdfs:label ?artistaNome.
-  FILTER (lang(?artistaNome) = "en")              # Filtra i titoli in inglese
+    VALUES ?artista { ${artists.map(q => `wd:${q}`).join(" ")} }.
+    ?artista rdfs:label ?artistaNome.
+    FILTER (lang(?artistaNome) = "en")
     ?canzoni wdt:P175  ?artista;
         rdfs:label ?nomeCanzone.
     ${nomeCanzone==undefined ?"":
       `FILTER(REGEX(?nomeCanzone, ${nomeCanzone}, "i") || REGEX(${nomeCanzone}, ?nomeCanzone, "i")).`
     }
     FILTER(lang(?nomeCanzone)="en").
-    optional{
+    OPTIONAL{
         ?canzoni wdt:P577 ?pubblicazione;
      }
-    optional{
+    OPTIONAL{
         ?canzoni wdt:P361 ?a. 
         ?a wdt:P577 ?pubblicazione.
       }
-    optional{
+    OPTIONAL{
         ?canzoni wdt:P136 ?genere.
         ?genere rdfs:label ?nomeGenere.
-    FILTER (lang(?nomeGenere) = "en")              # Filtra i titoli in inglese
+    FILTER (lang(?nomeGenere) = "en")
       }
-    optional{
+    OPTIONAL{
         ?canzoni wdt:P361 ?a. 
         ?a wdt:P136 ?genere.
         ?genere rdfs:label ?nomeGenere.
-    FILTER (lang(?nomeGenere) = "en")              # Filtra i titoli in inglese
+    FILTER (lang(?nomeGenere) = "en")
       }
-    optional{
+    OPTIONAL{
         ?canzoni wdt:P31 	 wd:Q482994.
         ?canzoni rdfs:label ?album. 
-        FILTER (lang(?album) = "en")              # Filtra i titoli in inglese
+        FILTER (lang(?album) = "en")
         bind(?canzoni as ?oggalbum).
     }
-    optional{
+    OPTIONAL{
         ?canzoni wdt:P361 ?a. 
         ?a rdfs:label ?album. 
-        FILTER (lang(?album) = "en")              # Filtra i titoli in inglese
+        FILTER (lang(?album) = "en")
         bind(?a as ?oggalbum).
     }
 }
 `;
 
 
-const getInfoCanzoneByLabels=(labels,artists)=>`
+const getInfoCanzoneByLabels = (labels,artists) => `
 SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazione ?oggalbum ?album WHERE {
 
     #bind(wd:Q4879921 as ?canzoni) .
   
-  VALUES ?canzoni { ${labels.map(q => `wd:${q}`).join(" ")} }.
-  ${
-    (artists!=undefined) ?
-       `VALUES ?artista { ${artists.map(q => `wd:${q}`).join(" ")} }.`:""
-  }
+    VALUES ?canzoni { ${labels.map(q => `wd:${q}`).join(" ")} }.
+    ${ (artists !== undefined) ?
+        `VALUES ?artista { ${artists.map(q => `wd:${q}`).join(" ")} }.` :
+        ""
+    }
     ?canzoni wdt:P175  ?artista;
-        rdfs:label ?nomeCanzone.
-  ?artista rdfs:label ?artistaNome.
+             rdfs:label ?nomeCanzone.
+    ?artista rdfs:label ?artistaNome.
   
-  FILTER (lang(?artistaNome) = "en")              # Filtra i titoli in inglese
+    FILTER (lang(?artistaNome) = "en")
     #FILTER(lang(?nomeCanzone)="en").
-    optional{
+    OPTIONAL {
         ?canzoni wdt:P577 ?pubblicazione;
-     }
-    optional{
+    }
+    OPTIONAL {
         ?canzoni wdt:P361 ?a. 
         ?a wdt:P577 ?pubblicazione.
-      }
-    optional{
+    }
+    OPTIONAL {
         ?canzoni wdt:P136 ?genere.
         ?genere rdfs:label ?nomeGenere.
-      }
-    optional{
+    }
+    OPTIONAL {
         ?canzoni wdt:P361 ?a. 
         ?a wdt:P136 ?genere.
         ?genere rdfs:label ?nomeGenere.
-      }
-    FILTER (lang(?nomeGenere) = "en")              # Filtra i titoli in inglese
-    optional{
+    }
+    FILTER (lang(?nomeGenere) = "en")
+    OPTIONAL {
         ?canzoni wdt:P31 	 wd:Q482994.
         ?canzoni rdfs:label ?album. 
-        FILTER (lang(?album) = "en")              # Filtra i titoli in inglese
+        FILTER (lang(?album) = "en")
         bind(?canzoni as ?oggalbum).
     }
-    optional{
+    OPTIONAL {
         ?canzoni wdt:P361 ?a. 
         ?a rdfs:label ?album. 
-        FILTER (lang(?album) = "en")              # Filtra i titoli in inglese
+        FILTER (lang(?album) = "en")
         bind(?a as ?oggalbum).
     }
-}limit 100`;
+} LIMIT 100`;
 
 module.exports = {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId};

@@ -1,0 +1,76 @@
+:root {
+    --artist-count: 4;
+}
+
+html, body {
+	width: inherit;
+    background-color: #111;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;  /* Center the table vertically in the viewport */
+    margin: 35px 0 0 0;  /* Reset default margin */
+}
+
+table, tr, td, th {
+  border: none;
+}
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  margin: 0 0 50px 0;
+}
+
+td, th {
+  padding: 8px;
+  text-overflow: ellipsis;
+}
+
+td {
+  color: white;
+}
+
+th {
+	background-color: rgb(21, 85, 47);
+}
+
+tr:first-child > th {
+	font-size: small;
+    padding: 3px;
+    color: rgb(0, 211, 0);
+}
+
+tr {
+  background-color: #333;
+}
+
+.artists > td {
+	width: calc(100% * (1 / var(--artist-count)));
+}
+
+.overview {
+	width: 80%;
+}
+
+.tracks {
+	width: 70%;
+}
+
+.tracks > td, .tracks > th {
+    width: 33.333335%;
+} 
+
+td, th {
+	text-align: center;
+}
+
+td > a {
+    color: white;
+    text-decoration: none;
+}
