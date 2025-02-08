@@ -1,7 +1,15 @@
 //const fs= require('fs');
 const express= require('express'),
       { /*makeRequests, delay,*/ creaOption,fetchData} = require("../utils/GestioneRichieste.js"),
-      {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId} = require("../utils/queryWikiData.js"),
+      { getQueryCanzoniMusicista,
+        getInfoArtista,
+        getQueryCanzone,
+        getElement, 
+        getInfoCanzoneByLabels,
+        getQueryCanzoniFatteDaId,
+        findSongByCodiciArtistAndSongName
+      } = require("../utils/queryWikiData.js");
+
       router = express.Router(),
       wikydata="query.wikidata.org";
 
@@ -62,6 +70,7 @@ router.get('/songs', (req, res) => {
   router.post("/songById",(req, res) =>{
     const ids = req.body.codiciCanzoni;
     const artist=req.body.codiciArtisti;
+    console.log(ids);
     fetchData(creaOption("/sparql?query="+encodeURIComponent(getInfoCanzoneByLabels(ids,artist))+"&format=json",wikydata),true) .then((dati) => {
         let d=dati.results.bindings;
         res.json(d);
@@ -76,6 +85,24 @@ router.get('/songs', (req, res) => {
     //console.log(getQueryCanzoniFatteDaId(artist));
     fetchData(creaOption("/sparql?query="+encodeURIComponent(getQueryCanzoniFatteDaId(artist,nomeCanzone))+"&format=json",wikydata),true) .then((dati) => {
         let d=dati.results.bindings;
+        res.json(d);
+      })
+     .catch((error) => {
+      console.log(getQueryCanzoniFatteDaId(artist));
+        console.error(error);
+      });
+  });
+
+  router.post("/gettest",(req, res) =>{
+    const artist=req.body.codiciArtisti;
+    const nomeCanzone=req.body.nomeCanzone;
+    //console.log(getQueryCanzoniFatteDaId(artist));
+          //console.log(findSongByCodiciArtistAndSongName(artist,nomeCanzone));
+          console.log(nomeCanzone);
+    fetchData(creaOption("/sparql?query="+encodeURIComponent(findSongByCodiciArtistAndSongName(artist,nomeCanzone))+"&format=json",wikydata),true) .then((dati) => {
+        let d=dati.results.bindings;
+        
+        console.log(nomeCanzone);
         res.json(d);
       })
      .catch((error) => {

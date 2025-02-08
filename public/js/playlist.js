@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function renderData(data, title, useSpotify) {
     //console.log(data)
     songs = data;
-
+    var i=0;
     Promise.all(songs.map(async e => {
         const artista = e.artist_uri.split(":")[2],
               nomeArtista = FormatArtistName(e.artist_name),
@@ -69,7 +69,7 @@ function renderData(data, title, useSpotify) {
             artisti = (await ris.json()).map(p => p.title);
         }
         
-        urlApi = `http://localhost:3000/api/wikidata/songByIdArtisti`;
+        urlApi = `http://localhost:3000/api/wikidata/gettest`;
         ris = await fetch(urlApi, { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -87,6 +87,7 @@ function renderData(data, title, useSpotify) {
         //console.log(canzoniTrovate);
         if (canzoniTrovate.length === 0) {
             console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone, art: artisti, info:canzoniTrovate });
+            i++;
         }
        /* urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeCanzone)}`;
         ris = await fetch(urlApi);
@@ -104,8 +105,8 @@ function renderData(data, title, useSpotify) {
         if (infoCanzoni.length == 0) {
             console.log({ nomeArt: e.artist_name, nomeCanzone: nomeCanzone, art: art, canzoni: canzoni,info:infoCanzoni,artId:artId });
         }*/
-    })).then(_ => console.log("fatto"));
-
+    })).then(_ => {console.log("fatto");
+    console.log(i+" su "+songs.length+" elementi non trovati");});
     const table = document.createElement("table"),
           first_tr = document.createElement("tr"),
           th = document.createElement("th");
@@ -117,6 +118,7 @@ function renderData(data, title, useSpotify) {
     table.appendChild(first_tr);
 
     for (let i=0; i<data.length; i++) {
+        
         const tr = document.createElement("tr"),
               td_song = document.createElement("td"),
               a_song = document.createElement("a"),
@@ -143,7 +145,7 @@ function renderData(data, title, useSpotify) {
             artist = s.artist_name;
         }
 
-        a_song.href = `/song.html?nomeSong=${encodeURIComponent(song)}&idAutore=${artistId}`;
+        a_song.href = `/song.html?nomeSong=${encodeURIComponent(song)}&idAutore=${artistId}&nomeAutore=${encodeURIComponent(artist)}`;
         a_song.textContent = song;
         td_song.appendChild(a_song);
 

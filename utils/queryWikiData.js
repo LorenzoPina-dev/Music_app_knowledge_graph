@@ -98,7 +98,7 @@ SELECT distinct ?nomeCanzone ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere
     ?canzoni wdt:P175  ?artista;
         rdfs:label ?nomeCanzone.
     ${nomeCanzone==undefined ?"":
-      `FILTER(REGEX(?nomeCanzone, ${nomeCanzone}, "i") || REGEX(${nomeCanzone}, ?nomeCanzone, "i")).`
+      `FILTER(REGEX(?nomeCanzone, "${nomeCanzone}", "i") || REGEX("${nomeCanzone}", ?nomeCanzone, "i")).`
     }
     FILTER(lang(?nomeCanzone)="en").
     optional{
@@ -136,7 +136,7 @@ SELECT distinct ?nomeCanzone ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere
 
 
 const getInfoCanzoneByLabels=(labels,artists)=>`
-SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazione ?oggalbum ?album WHERE {
+SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere ?nomeCanzone ?pubblicazione ?oggalbum ?album WHERE {
 
     #bind(wd:Q4879921 as ?canzoni) .
   
@@ -150,7 +150,7 @@ SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazi
   ?artista rdfs:label ?artistaNome.
   
   FILTER (lang(?artistaNome) = "en")              # Filtra i titoli in inglese
-    #FILTER(lang(?nomeCanzone)="en").
+    FILTER(lang(?nomeCanzone)="en").
     optional{
         ?canzoni wdt:P577 ?pubblicazione;
      }
@@ -182,4 +182,50 @@ SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazi
     }
 }limit 100`;
 
-module.exports = {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId};
+
+const findSongByCodiciArtistAndSongName=(codiciArtista,nomeCanzone)=>`
+
+SELECT DISTINCT  ?artista  ?canzoni  WHERE {
+    values ?artista {${codiciArtista.map(q => `wd:${q}`).join(" ")}}. 
+    ?artista rdfs:label ?nome.
+    FILTER(LANG(?nome) = "en").  # Filtra solo i nomi in inglese
+    {
+        ?artista wdt:P31 wd:Q5;
+                 wdt:P358 ?discograpy.
+        ?discograpy wdt:P2354 ?lista.
+        ?lista wdt:P527 ?album.
+        ?album wdt:P658 ?canzoni.
+    }
+    UNION
+    {
+        ?artista wdt:P31 wd:Q5;
+                 wdt:P1455 ?discograpy.
+        ?discograpy wdt:P360 ?canzoni.
+    }
+    UNION
+    {
+        ?album wdt:P86|wdt:P175|wdt:P162 ?artista;
+                wdt:P658 ?canzoni.
+    }
+    UNION{
+          ?canzoni wdt:P86|wdt:P175|wdt:P162 ?artista;
+                    wdt:P577 _:data.
+      }
+    ?canzoni rdfs:label ?canzoniLabel.
+    FILTER(REGEX(?canzoniLabel, "${nomeCanzone}", "i") || REGEX("${nomeCanzone}", ?canzoniLabel, "i")).
+}limit 20
+`;
+
+
+
+
+
+
+module.exports = {getQueryCanzoniMusicista,
+                  getInfoArtista,
+                  getQueryCanzone,
+                  getElement,
+                  getInfoCanzoneByLabels,
+                  getQueryCanzoniFatteDaId,
+                  findSongByCodiciArtistAndSongName,
+                  };
