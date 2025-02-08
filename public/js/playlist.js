@@ -1,3 +1,35 @@
+function FormatArtistName(name) {
+    if (name.match(/[^\x00-\x7F]/g) !== null) {
+        // trova nome in inglese tra le tonde
+        const m = name.match(/\(([^)]+)\)/);
+        name = m !== null ? m[1] : name;
+    }
+    name = name.replace(/[^\x00-\x7F]/g, "");
+    const indexes = [name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/")].filter(v => v !== -1);
+    if (indexes.length !== 0) {
+        const cut_index = Math.min(indexes);
+        name = name.slice(0, cut_index-1);
+    }
+    name = name.replace(/^\s+|\s+$/g, "");
+    return name;
+}
+
+function FormatSongName(name) {
+    if (name.match(/[^\x00-\x7F]/g) !== null) {
+        // trova nome in inglese tra le tonde
+        const m = name.match(/\(([^)]+)\)/);
+        name = m !== null ? m[1] : name;
+    }
+    name = name.replace(/[^\x00-\x7F]/g, "");
+    const indexes = [name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/"), name.indexOf(":")].filter(v => v !== -1);
+    if (indexes.length !== 0) {
+        const cut_index = Math.min(indexes);
+        name = name.slice(0, cut_index-1);
+    }
+    name = name.replace(/^\s+|\s+$/g, "");
+    return name;
+}
+
 let songs;
 document.addEventListener("DOMContentLoaded", function () {
     let url = new URL(window.location.href);
@@ -18,52 +50,22 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch(error => console.error('Error:', error)); // Handle errors
 });
 
-// album_name: "Reach Out I'll Be There"
-// album_uri: "spotify:album:7KrwyjO26jw7TJaUcJvbz9"
-// artist_name: "Four Tops"
-// artist_uri: "spotify:artist:7fIvjotigTGWqjIz6EP1i4"
-// duration_ms: 162960
-// pos: 37
-// track_name: "I Can't Help Myself (Sugar Pie, Honey Bunch) - Album Version (Stereo)"
-// track_uri: "spotify:track:1I8956VUImfafRIuccR9Cq"
-
 function renderData(data, title, useSpotify) {
-    console.log(data)
-    songs=data;
+    //console.log(data)
+    songs = data;
 
     Promise.all(songs.map(async e => {
-        let artista = e.artist_uri.split(":")[2];
-        let nomeArtista=e.artist_name;
-        
-        if( nomeArtista.match(/[^\x00-\x7F]/g)!=null) {
-            const m=nomeArtista.match(/\(([^)]+)\)/);
-            nomeArtista = m ? m[1] : nomeArtista;
-        }
-        nomeArtista =nomeArtista.replace(/[^\x00-\x7F]/g, "");
-        nomeArtista =nomeArtista.replace(/^\s+|\s+$/g, "");        ;
-        if (nomeArtista.includes(" -")) nomeArtista = nomeArtista.split(" -")[0];
-        if (nomeArtista.includes(" (")) nomeArtista = nomeArtista.split(" (")[0];
-        if (nomeArtista.includes(" [")) nomeArtista = nomeArtista.split(" [")[0];
-        if (nomeArtista.includes(" /")) nomeArtista = nomeArtista.split(" /")[0];
-        let nomeCanzone = e.track_name;
-        if( nomeCanzone.match(/[^\x00-\x7F]/g)!=null) {
-            const m=nomeCanzone.match(/\(([^)]+)\)/);
-            nomeCanzone = m ? m[1] : nomeCanzone;
-        }
-        nomeCanzone =nomeCanzone.replace(/[^\x00-\x7F]/g, "");
-        nomeCanzone =nomeCanzone.replace(/^\s+|\s+$/g, "");        ;
-        if (nomeCanzone.includes(" -")) nomeCanzone = nomeCanzone.split(" -")[0];
-        if (nomeCanzone.includes(" (")) nomeCanzone = nomeCanzone.split(" (")[0];
-        if (nomeCanzone.includes(" [")) nomeCanzone = nomeCanzone.split(" [")[0];
-        if (nomeCanzone.includes(" /")) nomeCanzone = nomeCanzone.split(" /")[0];
+        const artista = e.artist_uri.split(":")[2],
+              nomeArtista = FormatArtistName(e.artist_name),
+              nomeCanzone = FormatSongName(e.track_name);
 
+        let urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(artista)}`,
+              ris = await fetch(urlApi);
 
-        urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(artista)}`;
-        ris = await fetch(urlApi);
         let artisti = (await ris.json()).map(p => p.title);
-        if(artisti.length == 0) {
-            let urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeArtista)}`;
-            let ris = await fetch(urlApi);
+        if (artisti.length === 0) {
+            urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeArtista)}`;
+            ris = await fetch(urlApi);
             artisti = (await ris.json()).map(p => p.title);
         }
         
@@ -83,7 +85,7 @@ function renderData(data, title, useSpotify) {
 
         });*/
         //console.log(canzoniTrovate);
-        if (canzoniTrovate.length == 0) {
+        if (canzoniTrovate.length === 0) {
             console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone, art: artisti, info:canzoniTrovate });
         }
        /* urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeCanzone)}`;
@@ -102,7 +104,8 @@ function renderData(data, title, useSpotify) {
         if (infoCanzoni.length == 0) {
             console.log({ nomeArt: e.artist_name, nomeCanzone: nomeCanzone, art: art, canzoni: canzoni,info:infoCanzoni,artId:artId });
         }*/
-    })).then(()=>console.log("fatto"));
+    })).then(_ => console.log("fatto"));
+
     const table = document.createElement("table"),
           first_tr = document.createElement("tr"),
           th = document.createElement("th");
@@ -128,23 +131,23 @@ function renderData(data, title, useSpotify) {
         if (useSpotify) {
             artistId = s.artists[0];
             album = s.album;
-            song=s.name;
-            albumId=album;
-            artist=artistId;
+            song = s.name;
+            albumId = album;
+            artist = artistId;
         }
         else {
             artistId = s.artist_uri.slice("spotify:artist:".length);
-            albumId= encodeURIComponent(s.album_name);
-            song=s.track_name;
-            album=s.album_name;
-            artist=s.artist_name;
+            albumId = s.album_uri.slice("spotify:album:".length);
+            song = s.track_name;
+            album = s.album_name;
+            artist = s.artist_name;
         }
 
         a_song.href = `/song.html?nomeSong=${encodeURIComponent(song)}&idAutore=${artistId}`;
         a_song.textContent = song;
         td_song.appendChild(a_song);
 
-        a_album.href = `/album.html?idAutore=${artistId}&idAlbum=${albumId}`;
+        a_album.href = `/album.html?idAlbum=${albumId}`;
         a_album.textContent = album;
         td_album.appendChild(a_album);
 

@@ -1,18 +1,20 @@
-const fs = require('fs');
-//import fs from 'fs';
-const pathSongs="music_dataset.csv";
-const pathPlaylistsList = "./data";
-function getSongs() {
-    const file=fs.readFileSync(pathSongs);
+const fs = require('fs'),
+      cvs_path = "music_dataset.csv",
+      playlist_path = "./data";
 
-    const songs=file.toString().split('\n').map(line => line.split(',').slice(1));
-    const etichette=songs[0];
-    const ris= songs.slice(1).map(song=>{
-        const obj = {};
-        etichette.forEach((label, index) => {
-            obj[label] = song[index];  // Aggiunge la coppia chiave-valore all'oggetto
-        });
-        return obj;  
+function getSongs() {
+    const file = fs.readFileSync(cvs_path, {encoding:"utf8"});
+          [etichette, ...songs] = file.split('\n').map(line => line.split(',').slice(1));
+
+    const ris = songs.map(song => {
+        const s = {};
+
+        for (let i=0; i<etichette.length; i++) {
+            const label = etichette[i], value = song[i];
+            s[label] = value;
+        }
+        
+        return s;  
     });
     return ris;  // Restituisce un array di oggetti, dove ogni oggetto rappresenta una canzone
 }
@@ -21,20 +23,23 @@ function getPlaylists(file) {
     return JSON.parse(fs.readFileSync(file)).playlists;
 }
 function getListPlaylists(numFile) {
-    let files=fs.readdirSync(pathPlaylistsList);
-    files =files.sort((a, b) => {
+    const prefix_length = "mpd.slice.".length,
+          suffix_length = ".json".length;
+
+    const files = fs.readdirSync(playlist_path).sort((a, b) => {
         // Estrarre il primo numero dal nome del file
-        const numA = parseInt(a.match(/\d+/)[0], 10);
-        const numB = parseInt(b.match(/\d+/)[0], 10);
+        const numA = Number(a.slice(prefix_length,-suffix_length).split("-")[0]),
+              numB = Number(b.slice(prefix_length,-suffix_length).split("-")[0]);
         return numA - numB;
     });
-    let result=[];
-    if(numFile==undefined) {
-        numFile=files.length;  // Se non specificato, considera tutte le playlist
-    }
-    for (let i=0;i<numFile;i++) {
-        result.push(...getPlaylists(pathPlaylistsList+"/"+files[i]));
-    }
+
+    const result = [];
+    if (numFile === undefined)
+        numFile = files.length;  // Se non specificato, considera tutte le playlist
+
+    for (let i=0; i<numFile; i++)
+        result.push(...getPlaylists(playlist_path + "/" + files[i]));
+
     return result;
 }
 /*

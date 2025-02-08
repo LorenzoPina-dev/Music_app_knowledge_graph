@@ -1,19 +1,26 @@
-const express= require('express');
-const fs= require('fs');
-const {makeRequests, delay, creaOption,fetchData} =require("../utils/GestioneRichieste.js");
-const {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement, getInfoCanzoneByLabels,getQueryCanzoniFatteDaId} = require("../utils/queryWikiData.js");
-const router = express.Router();
-const wikydata="query.wikidata.org";
+//const fs= require('fs');
+const express= require('express'),
+      { /*makeRequests, delay,*/ creaOption,fetchData} = require("../utils/GestioneRichieste.js"),
+      {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId} = require("../utils/queryWikiData.js"),
+      router = express.Router(),
+      wikydata="query.wikidata.org";
 
-  router.get('/songs', (req, res) => {
-    const codiceArtista = req.query.codiceArtista;
-    fetchData(creaOption("/sparql?query="+encodeURIComponent(getQueryCanzoniMusicista(codiceArtista))+"&format=json",wikydata),true) .then((dati) => {
-        let d=dati.results.bindings;
-        res.json(d);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+router.get('/songs', (req, res) => {
+    const codiceArtista = req.query.codiceArtista,
+          url = `/sparql?query=${encodeURIComponent(getQueryCanzoniMusicista(codiceArtista))}&format=json`;
+
+    fetchData(creaOption(url,wikydata), true)
+        .then(dati => {
+            let d = dati.results.bindings;
+
+            console.log('Bindings:');
+            console.log(d);
+            
+            res.json(d);
+        })
+        .catch((err) => {
+            console.error(err);
+        });
   });
 
   router.get('/song', (req, res) => {
