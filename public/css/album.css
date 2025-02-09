@@ -23,7 +23,6 @@ table, tr, td, th {
 table {
     font-family: arial, sans-serif;
     border-collapse: collapse;
-    margin: 0 0 50px 0;
 }
 
 td, th {
@@ -34,6 +33,11 @@ td, th {
     text-overflow: clip;
     white-space: nowrap;
     text-align: center;
+    border-right: 2px solid var(--odd);
+}
+
+th:last-child, td:last-child {
+    border-right: none;
 }
 
 td {
@@ -63,16 +67,19 @@ tr:nth-child(even) {
 }
 
 .overview {
-	width: 80%;
+	width: 60%;
+    margin: 0 0 50px 0;
 }
 
 .tracks {
-	width: 70%;
+	width: 60%;
 }
 
-.tracks > td, .tracks > th {
-    width: 33.333335%;
-} 
+.tracks tr > td {
+    width: calc(100vw * (0.3333 * 0.6));
+    max-width: calc(100vw * (0.3333 * 0.6));
+    text-overflow: ellipsis;
+}
 
 td, th {
 	text-align: center;

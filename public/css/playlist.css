@@ -23,13 +23,19 @@ table, tr, th, td {
 
 th, td {
     padding: 8px;
-    text-overflow: ellipsis;
     vertical-align: middle;
     overflow: hidden;
-    text-overflow: clip;
+    text-overflow: ellipsis;
     white-space: nowrap;
     text-align: center;
+    border-right: 2px solid var(--odd);
+    color: var(--text);
 }
+
+th:last-child, td:last-child {
+    border-right: none;
+}
+
 
 th {
     background-color: var(--highlight-contrast);
@@ -61,25 +67,25 @@ tr:nth-child(odd) {
     background-color: var(--odd);
 }
 
-td > a {
-    color: var(--text);
+a {
+    color: inherit;
     text-decoration: none;
 }
 
 /* song name */
 td:nth-child(1) {
-    width: calc(100vw * (0.3333 * 0.4));
-    max-width: calc(100vw * (0.3333 * 0.4));
+    width: calc(100vw * (0.3333 * 0.3333));
+    max-width: calc(100vw * (0.3333 * 0.3333));
 }
 
 /* album name */
 td:nth-child(2) {
-    width: calc(100vw * (0.3333 * 0.15));
-    max-width: calc(100vw * (0.3333 * 0.15));
+    width: calc(100vw * (0.3333 * 0.3333));
+    max-width: calc(100vw * (0.3333 * 0.3333));
 }
 
 /* artist name */
 td:nth-child(3) {
-    width: calc(100vw * (0.3333 * 0.45));
-    max-width: calc(100vw * (0.3333 * 0.45));
+    width: calc(100vw * (0.3333 * 0.3333));
+    max-width: calc(100vw * (0.3333 * 0.3333));
 }

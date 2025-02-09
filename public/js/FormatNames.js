@@ -35,5 +35,3 @@ function FormatSongName(name) {
 
     return name;
 }
-
-module.exports = { FormatArtistName, FormatSongName };
