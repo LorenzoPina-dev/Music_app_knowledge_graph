@@ -105,12 +105,14 @@ td > a {
     color: var(--text);
     font-weight: bold;
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     transition: all 0.3s;
-    /*position: absolute;
-    transform: translate(0, 325%);*/
+    width: 99.3335%;
+    height: 11.8919%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    padding-left: auto;
 }
 
 #container div > img {
