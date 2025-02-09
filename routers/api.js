@@ -3,7 +3,7 @@
 const express = require("express"),
       router = express.Router(),
       { getSongs, getListPlaylists } = require('./../utils/LeggiFile.js'),
-      playlists = getListPlaylists(50),
+      playlists = getListPlaylists(10),
       datasetSongs = getSongs();
 //fs.writeFileSync("what.json",JSON.stringify( datasetSongs));
 // Rotta GET

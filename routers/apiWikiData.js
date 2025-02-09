@@ -71,7 +71,7 @@ router.get('/songs', (req, res) => {
     const ids = req.body.codiciCanzoni;
     const artist=req.body.codiciArtisti;
     console.log(ids);
-    fetchData(creaOption("/sparql?query="+encodeURIComponent(getInfoCanzoneByLabels(ids,artist))+"&format=json",wikydata),true) .then((dati) => {
+    fetchData(creaOption("/sparql?query="+encodeURIComponent(getInfoCanzoneByLabels(ids))+"&format=json",wikydata),true) .then((dati) => {
         let d=dati.results.bindings;
         res.json(d);
       })

@@ -9,9 +9,15 @@ function fetchData(url, parse) {
             });
 
             response.on("end", () => {
+              try {
                 res(parse ? JSON.parse(data) : data);
+              } catch (err){
+                console.error(data);
+                rej(err);
+              }
             });
         }).on("error", err => {
+            console.error('Error:', err);
             rej(err);
         });
     });
