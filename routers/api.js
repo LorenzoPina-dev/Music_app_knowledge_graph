@@ -1,12 +1,8 @@
-// routes/userRoutes.js
-//const fs=require('fs');
 const express = require("express"),
       router = express.Router(),
       { getSongs, getListPlaylists } = require('./../utils/LeggiFile.js'),
       playlists = getListPlaylists(10),
       datasetSongs = getSongs();
-//fs.writeFileSync("what.json",JSON.stringify( datasetSongs));
-// Rotta GET
 
 router.get('/numeroPlaylist', (_, res) => {
     res.json({ numPlaylist: playlists.length });
@@ -29,11 +25,11 @@ router.get('/getNplaylist', (req, res) => {
     const risp = playlists
                     .filter(p => p.name.toLowerCase().includes(filtro.toLowerCase()))
                     .slice(partenza, quanti).map(p => {
-                        const {tracks, ...risposta} =p;
+                        const {tracks, ...risposta} = p;
                         return risposta
                     });
     res.json(risp);
-  });
+});
 
   router.get('/getSongPlaylist', (req, res) => {
     let idPlaylist = req.query.idPlaylist;
@@ -90,18 +86,6 @@ router.get('/getAutoreSong', (req, res) => {
 router.get('/songs', (_, res) => {
     res.json(datasetSongs);
 });
-
-// router.get('/songPlaylist', (req, res) => {
-//     const idPlaylist = req.query.idPlaylist;
-//     if(idPlaylist === undefined) {
-//         res.sendStatus(400);
-//         return;
-//     }
-
-//     //console.log(playlists.filter(p=>p.pid==idPlaylist))
-//     const songsPlaylist = playlists.filter(p => p.pid === idPlaylist)[0].tracks;
-//     res.json(songsPlaylist);
-// });
 
 // Esporta il router
 module.exports = router;

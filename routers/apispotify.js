@@ -1,5 +1,5 @@
-//const fs= require('fs');
 require('dotenv').config();
+
 const express = require('express'),
       SpotifyWebApi = require('spotify-web-api-node'),
       router = express.Router();
