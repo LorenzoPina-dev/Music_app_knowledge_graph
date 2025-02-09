@@ -10,8 +10,8 @@ const express= require('express'),
         findSongByCodiciArtistAndSongName
       } = require("../utils/queryWikiData.js");
 
-      router = express.Router(),
-      wikydata="query.wikidata.org";
+router = express.Router(),
+wikydata = "query.wikidata.org";
 
 router.get('/songs', (req, res) => {
     const codiceArtista = req.query.codiceArtista,
@@ -31,7 +31,7 @@ router.get('/songs', (req, res) => {
         });
   });
 
-  router.get('/song', (req, res) => {
+router.get('/song', (req, res) => {
     const codiceArtista = req.query.codiceArtista;
     const nomeCanzone = req.query.nomeCanzone;
     console.log(codiceArtista);
@@ -43,9 +43,9 @@ router.get('/songs', (req, res) => {
       .catch((error) => {
         console.error(error);
       });
-  });
+});
 
-  router.get('/artista', (req, res) => {
+router.get('/artista', (req, res) => {
     const codiceArtista = req.query.codiceArtista;
     
     fetchData(creaOption("/sparql?query="+encodeURIComponent(getInfoArtista(codiceArtista))+"&format=json",wikydata),true) .then((dati) => {
@@ -55,8 +55,9 @@ router.get('/songs', (req, res) => {
       .catch((error) => {
         console.error(error);
       });
-  });
-  router.get("/elemento",(req, res) => {
+});
+
+router.get("/elemento",(req, res) => {
     const stringa = req.query.stringa;
     
     fetchData(getElement(stringa),true) .then((dati) => {
@@ -66,8 +67,9 @@ router.get('/songs', (req, res) => {
       .catch((error) => {
         console.error(error);
       });
-  });
-  router.post("/songById",(req, res) =>{
+});
+
+router.post("/songById",(req, res) =>{
     const ids = req.body.codiciCanzoni;
     const artist=req.body.codiciArtisti;
     console.log(ids);
@@ -79,7 +81,8 @@ router.get('/songs', (req, res) => {
         console.error(error);
       });
   });
-  router.post("/songByIdArtisti",(req, res) =>{
+
+router.post("/songByIdArtisti",(req, res) =>{
     const artist=req.body.codiciArtisti;
     const nomeCanzone=req.body.nomeCanzone;
     //console.log(getQueryCanzoniFatteDaId(artist));
@@ -91,9 +94,9 @@ router.get('/songs', (req, res) => {
       console.log(getQueryCanzoniFatteDaId(artist));
         console.error(error);
       });
-  });
+});
 
-  router.post("/gettest",(req, res) =>{
+router.post("/gettest",(req, res) =>{
     const artist=req.body.codiciArtisti;
     const nomeCanzone=req.body.nomeCanzone;
     //console.log(getQueryCanzoniFatteDaId(artist));
@@ -109,6 +112,6 @@ router.get('/songs', (req, res) => {
       console.log(getQueryCanzoniFatteDaId(artist));
         console.error(error);
       });
-  });
+});
 
 module.exports = router;
