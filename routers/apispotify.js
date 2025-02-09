@@ -55,6 +55,30 @@ router.get('/album', async (req, res) => {
         res.status(400).json({ error: err.message })
     }
 })
+
+router.get('/albumAutore', async (req, res) => {
+    const idAutore = req.query.idAutore;
+    
+    try {
+        const data = await spotifyAuthenticationHelper("getArtistAlbums", idAutore);
+        res.json(data);
+    }
+    catch (err) {
+        res.status(400).json({ error: err.message })
+    }
+})
+
+router.get('/autore', async (req, res) => {
+    const idAutore = req.query.idAutore;
+
+    try {
+        const data = await spotifyAuthenticationHelper("getArtist", idAutore);
+        res.json(data);
+    }
+    catch (err) {
+        res.status(400).json({ error: err.message })
+    }
+})
  
 
 router.get('/playlist', async (req, res) => {

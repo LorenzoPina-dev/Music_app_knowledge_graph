@@ -1,0 +1,128 @@
+:root {
+    --genre-count: 1;
+}
+
+html, body {
+	width: inherit;
+}
+
+body {
+    min-height: calc(100vh - 70px);
+    background-color: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;  /* Center the table vertically in the viewport */
+    margin: 35px 0 35px 0;  /* Reset default margin */
+}
+
+table, tr, td, th {
+    border: none;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 8px;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    overflow: hidden;
+    text-overflow: clip;
+    white-space: nowrap;
+    text-align: center;
+    border-right: 2px solid var(--odd);
+}
+
+th:last-child, td:last-child {
+    border-right: none;
+}
+
+td {
+    color: var(--text);
+}
+
+th {
+	background-color: var(--highlight-contrast);
+}
+
+tr:first-child > th {
+	font-size: small;
+    padding: 3px;
+    color: var(--highlight-text);
+}
+
+tr:nth-child(odd) {
+    background-color: var(--odd);
+}
+
+tr:nth-child(even) {
+    background-color: var(--even);
+}
+
+.genres > td {
+	width: calc(100% * (1 / var(--genre-count)));
+}
+
+.overview {
+	width: 60%;
+    margin: 0 0 50px 0;
+}
+
+td, th {
+	text-align: center;
+}
+
+td > a {
+    color: inherit;
+    text-decoration: none;
+}
+
+#container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 columns */
+    gap: 20px; /* Adjust spacing between items */
+    padding: 20px;
+    width: min(90vw, 800px); /* Ensures a responsive max width */
+}
+
+#container div {
+    border-radius: 15px;
+    background-color: var(--odd);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 50px;
+    aspect-ratio: 1/1; /* Ensures perfect square */
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+#container a {
+    text-decoration: none;
+    color: var(--text);
+    font-weight: bold;
+    text-align: center;
+    width: 100%;  
+    height: 100%; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+#container div:hover {
+    background-color: var(--highlight-contrast);
+}
+
+#container div:hover > a {
+    color: var(--highlight-text);
+}
+
+h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--highlight-text);
+}
