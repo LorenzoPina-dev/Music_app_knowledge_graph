@@ -28,6 +28,7 @@ SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
 }`;
 
 const getElement = string => `https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${string}&format=json&srlimit=100`;
+const getElement = string => `https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${string}&format=json&srlimit=100`;
 
 const getInfoArtista = codiceArtista => `
 select distinct ?artista ?image ?startWork ?coord where {
