@@ -23,43 +23,37 @@ async function fetchJson(url) {
         
         const data = await response.json();
         return data;
-    } catch (error) {
+    } 
+    catch (error) {
         console.error("Errore nella richiesta:", error);
     }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    content = document.getElementById("content");
     fetchJson(`/api/getNplaylist?max=${end}&start=${start}`)
-        .then(data => content.appendChild(build_table(data)))
+        .then(data => renderData(data))
         .catch(err => console.error(err));
 });
 
-function build_table(arr) {
-    const table = document.createElement("table");
-
+function renderData(arr) {
+    const container = document.getElementById("container"),
+          h1 = document.createElement("h1");
+    h1.textContent = "Playlists";
+    document.body.prepend(h1);
     for (let i = 0; i < arr.length; i++) {
-        const tr = document.createElement("tr"), td = document.createElement("td"), a = document.createElement("a");
+        const div = document.createElement("div"), a = document.createElement("a");
         const name = arr[i].name;
         a.textContent = name;
         a.href = `/playlist.html?idPlaylist=${arr[i].pid}&nomePlaylist=${name}&useSpotify=${false}`;
 
-        td.appendChild(a);
-        tr.appendChild(td);
-        table.appendChild(tr);
+        div.appendChild(a);
+        container.appendChild(div);
     }
-    return table;
 }
 
-function generaPaginaPlaylist(idPlaylist) {
-    content=document.getElementById("content");
-    content.replaceChildren();
-
-}
-
-function getDataWAutore(codiceArtista){ 
-    const endpointUrl = 'https://query.wikidata.org/sparql';
-    const sparqlQuery = `SELECT ?artista ?canzoni ?genere ?pubblicazione WHERE {
+function getDataWAutore(codiceArtista) { 
+    const endpointUrl = 'https://query.wikidata.org/sparql',
+          sparqlQuery = `SELECT ?artista ?canzoni ?genere ?pubblicazione WHERE {
         ?artista wdt:P1902 "${codiceArtista}".
         ?canzoni wdt:P175 ?artista ;
                 wdt:P136 ?genere ;
@@ -68,9 +62,5 @@ function getDataWAutore(codiceArtista){
 
     const queryDispatcher = new SPARQLQueryDispatcher( endpointUrl );
     queryDispatcher.query( sparqlQuery ).then( console.log );
-
-}
-
-function getDataWSong(codiceCanzone){
 
 }

@@ -1,4 +1,3 @@
-
 function FormatArtistName(name) {
     if (name.match(/[^\x00-\x7F]/g) !== null) {
         // trova nome in inglese tra le tonde

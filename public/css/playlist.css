@@ -3,21 +3,18 @@ html, body {
 }
 
 body {
-    min-height: 100vh;
-    background-color: #111;
+    min-height: calc(100vh - 70px);
+    background-color: var(--bg);
     display: flex;
     justify-content: center;
     align-items: center;  /* Center the table vertically in the viewport */
     margin: 0;  /* Reset default margin */
+    margin: 35px 0 35px 0;  /* Reset default margin */
 }
 
 table {
-    width: 70%;
+    width: 60%;
     border-collapse: collapse;  /* Remove spacing between table cells */
-}
-
-tr {
-    max-height: 41px;  /* Set maximum row height */
 }
 
 table, tr, th, td {
@@ -25,58 +22,64 @@ table, tr, th, td {
 }
 
 th, td {
-    padding: 10px;
+    padding: 8px;
+    text-overflow: ellipsis;
     vertical-align: middle;
-    height: 41px;  /* Ensure cell has a fixed height */
     overflow: hidden;
     text-overflow: clip;
     white-space: nowrap;
     text-align: center;
-    font-size: 20px;
 }
 
 th {
-    background-color: rgb(21, 85, 47);
+    background-color: var(--highlight-contrast);
 }
 
 tr:first-child {
     position: sticky;
-
     top: 0;
+}
+
+tr:first-child > th {
+	font-size: small;
+    padding: 3px;
+    color: var(--highlight-text);
 }
 
 /* playlist name */
 th:first-child {
     font-size: larger;
     font-weight: bold;
-    color: rgb(0, 211, 0);
+    color: var(--highlight-text);
 }
 
-tr:nth-child(2n) {
-    background-color: #434343;
+tr:nth-child(even) {
+    background-color: var(--even);
 }
 
-tr:nth-child(2n+1) {
-    background-color: #333;
+tr:nth-child(odd) {
+    background-color: var(--odd);
 }
 
 td > a {
-    color: white;
+    color: var(--text);
     text-decoration: none;
 }
 
 /* song name */
 td:nth-child(1) {
-    width: 40%
+    width: calc(100vw * (0.3333 * 0.4));
+    max-width: calc(100vw * (0.3333 * 0.4));
 }
 
 /* album name */
 td:nth-child(2) {
-    width: calc(100vw * (0.7 * 0.15));
-    max-width: calc(100vw * (0.7 * 0.15));
+    width: calc(100vw * (0.3333 * 0.15));
+    max-width: calc(100vw * (0.3333 * 0.15));
 }
 
 /* artist name */
 td:nth-child(3) {
-    max-width: 45%;
+    width: calc(100vw * (0.3333 * 0.45));
+    max-width: calc(100vw * (0.3333 * 0.45));
 }

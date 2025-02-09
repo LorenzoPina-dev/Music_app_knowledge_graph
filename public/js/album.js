@@ -59,7 +59,7 @@ function renderData(album,album_id) {
 
     const album_name = album.name;
 
-    th_album_name.textContent = `Album name: ${album_name}`;
+    th_album_name.textContent = `Album: ${album_name}`;
     th_album_name.colSpan = max_col_span;
 
     tr_album_name.appendChild(th_album_name);

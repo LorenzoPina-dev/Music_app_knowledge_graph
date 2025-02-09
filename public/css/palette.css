@@ -1,0 +1,14 @@
+:root {
+    --text: #bab8b6;
+    --highlight-text: #2dcc2d;
+    --even: #282c2e;
+    --odd: #1e2222;
+    --highlight-contrast: #0e361e;
+    --bg: #0a0b0b;
+}
+
+@layer {
+    * {
+        scrollbar-color: #373b3e #1a1c1d;
+    }
+}

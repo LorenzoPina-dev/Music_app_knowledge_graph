@@ -1,35 +1,3 @@
-function FormatArtistName(name) {
-    if (name.match(/[^\x00-\x7F]/g) !== null) {
-        // trova nome in inglese tra le tonde
-        const m = name.match(/\(([^)]+)\)/);
-        name = m !== null ? m[1] : name;
-    }
-    name = name.replace(/[^\x00-\x7F]/g, "");
-    const indexes = [name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/")].filter(v => v !== -1);
-    if (indexes.length !== 0) {
-        const cut_index = Math.min(indexes);
-        name = name.slice(0, cut_index-1);
-    }
-    name = name.replace(/^\s+|\s+$/g, "");
-    return name;
-}
-
-function FormatSongName(name) {
-    if (name.match(/[^\x00-\x7F]/g) !== null) {
-        // trova nome in inglese tra le tonde
-        const m = name.match(/\(([^)]+)\)/);
-        name = m !== null ? m[1] : name;
-    }
-    name = name.replace(/[^\x00-\x7F]/g, "");
-    const indexes = [name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/"), name.indexOf(":")].filter(v => v !== -1);
-    if (indexes.length !== 0) {
-        const cut_index = Math.min(indexes);
-        name = name.slice(0, cut_index-1);
-    }
-    name = name.replace(/^\s+|\s+$/g, "");
-    return name;
-}
-
 let songs;
 document.addEventListener("DOMContentLoaded", function () {
     let url = new URL(window.location.href);
@@ -111,7 +79,7 @@ function renderData(data, title, useSpotify) {
           first_tr = document.createElement("tr"),
           th = document.createElement("th");
 
-    th.textContent = title;
+    th.textContent = `Playlist: ${title}`;
     th.colSpan = 3;
 
     first_tr.appendChild(th);
