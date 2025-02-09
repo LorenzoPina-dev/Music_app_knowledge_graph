@@ -7,10 +7,10 @@ function FormatArtistName(name) {
 
     name = name.replace(/[^\x00-\x7F]/g, "");
 
-    const cut_index = Math.min(name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/"));
-    
-    if (cut_index !== -1)
-        name = name.slice(0, cut_index+1);
+    const indices = [name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/")].filter(v => v !== -1);
+
+    if (indices.length > 0)
+        name = name.slice(0, Math.min(indices));
 
     name = name.replace(/^\s+|\s+$/g, "");
 
@@ -26,10 +26,10 @@ function FormatSongName(name) {
 
     name = name.replace(/[^\x00-\x7F]/g, "");
 
-    const cut_index = Math.min(name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/"), name.indexOf(":"));
+    const indices = [name.indexOf("-"), name.indexOf("("), name.indexOf("["), name.indexOf("/"), name.indexOf(":")].filter(v => v !== -1);
     
-    if (cut_index !== -1)
-        name = name.slice(0, cut_index+1);
+    if (indices.length > 0)
+        name = name.slice(0, Math.min(indices));
 
     name = name.replace(/^\s+|\s+$/g, "");
 

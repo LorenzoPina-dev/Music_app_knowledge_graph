@@ -49,6 +49,10 @@ function renderData(album,album_id) {
           tr_tracks = document.createElement("tr"),
           th_tracks = document.createElement("th");
 
+    const album_img = document.createElement("img");
+    album_img.src = album.images[1].url;
+    document.body.appendChild(album_img);
+
     overview_table.classList.add("overview");
     tracks_table.classList.add("tracks");
 

@@ -39,8 +39,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 // track 	
 
 function renderData(autore, album, idAutore) {
-    console.log({ autore, album })
-
     const container = document.getElementById("container");
 
     const name = autore.name,
@@ -93,21 +91,25 @@ function renderData(autore, album, idAutore) {
         }
         overview_table.appendChild(tr_genres);
     }
-    
-    const h1 = document.createElement("h1");
-    h1.textContent = "Albums";
-    
-    document.body.prepend(h1);
 
     document.body.prepend(overview_table);
 
+    const author_img = document.createElement("img");
+    author_img.src = autore.images[1].url;
+    author_img.alt = name;
+    document.body.prepend(author_img);
+
     for (let i=0; i<album.limit; i++) {
         const div = document.createElement("div"),
+              img = document.createElement("img"),
               a = document.createElement("a")
 
         const al = album.items[i];
 
         a.textContent = al.name;
+
+        img.src = al.images[1].url; // 300x300
+        div.appendChild(img);
 
         a.href = `/album.html?idAlbum=${al.uri.slice("spotify:album:".length)}`;
         div.appendChild(a);
