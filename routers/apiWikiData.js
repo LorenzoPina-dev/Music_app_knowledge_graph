@@ -6,7 +6,8 @@ const express = require('express'),
         getElement, 
         getInfoCanzoneByLabels,
         getQueryCanzoniFatteDaId,
-        findSongByCodiciArtistAndSongName
+        findSongByCodiciArtistAndSongName,
+        getInfoArtistaByCodici
       } = require("../utils/queryWikiData.js");
 
 router = express.Router(),
@@ -33,6 +34,19 @@ router.get('/song', async (req, res) => {
         const url = `/sparql?query=${ encodeURIComponent(getQueryCanzone(codiceArtista,nomeCanzone)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings);
+    }
+    catch (err) {
+        console.error(err);
+    }
+});
+
+
+router.post('/artista', async (req, res) => {
+    const codiciArtisti = req.body.codiciArtisti;
+    try {
+        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByCodici(codiciArtisti)) }&format=json`,
+              data = await fetchData(creaOption(url, wikydata), true);
+        res.json(data.results.bindings)
     }
     catch (err) {
         console.error(err);

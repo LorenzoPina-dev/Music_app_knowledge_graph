@@ -29,19 +29,71 @@ SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
 
 const getElement=(string)=>`https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${string}&format=json&srlimit=50`;
 
-const getInfoArtista = codiceArtista => `
+const getInfoArtista = codiceArtista =>
+    `select distinct ?artista ?image ?startWork ?coord ?premi where {
+        ?artista wdt:P1902 "${codiceArtista}";
+        optional{
+            ?artista wdt:P569|wdt:P571 ?startWork;
+        }
+        optional{
+            ?artista wdt:P19|wdt:P19/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }
+        optional{
+            ?artista wdt:P740|wdt:P740/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }
+        optional{
+            ?artista wdt:P495|wdt:P495/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }optional{
+            ?artista wdt:P27|wdt:P27/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }
+        optional{
+            artista wdt:P166 ?premi.
+        }
+    }`;
+    
+const getInfoArtistaByCodici = codiciArtista =>
+    `select distinct ?artista ?image ?startWork ?coord ?premi where {
+        VALUES ?artista { ${artists.map(q => `wd:${q}`).join(" ")} }.
+        optional{
+            ?artista wdt:P569|wdt:P571 ?startWork;
+        }
+        optional{
+            ?artista wdt:P19|wdt:P19/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }
+        optional{
+            ?artista wdt:P740|wdt:P740/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }
+        optional{
+            ?artista wdt:P495|wdt:P495/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }optional{
+            ?artista wdt:P27|wdt:P27/wdt:P1366 ?origin.
+            ?origin wdt:P625 ?coord.
+        }
+        optional{
+            artista wdt:P166 ?premi.
+        }
+    }`;
+
+/*`
 select distinct ?artista ?image ?startWork ?coord where {
     ?artista wdt:P1902 "${codiceArtista}";
              wdt:P18 ?image;
-             wdt:P2031 ?startWork;
+             wdt:P2031|wdt:P571 ?startWork;
              wdt:P136 ?genere;
-             wdt:P495 ?origin.
+             wdt:P495|wdt:P740 ?origin.
   
    ?origin wdt:P625 ?coord.
          # dbo:birthDate ?birtDate;
          # dbo:birthPlace ?birtPlace.
          # ?birtPlace georss:point ?coord.
-} LIMIT 100`
+} LIMIT 100`*/
 
 const getQueryCanzone = (codiceMusicista, nomeCanzone) => `
 SELECT distinct ?canzoni ?artistaNome ?artista ?genere ?nomeGenere ?pubblicazione ?oggalbum ?album WHERE {
@@ -208,4 +260,4 @@ SELECT distinct ?canzoni ?canzoniLabel ?artista ?artistaLabel ?genere ?genereLab
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 } LIMIT 100`
 
-module.exports = {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName};
+module.exports = {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName,getInfoArtistaByCodici};
