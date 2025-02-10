@@ -27,7 +27,7 @@ SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
     FILTER (lang(?instanza) = "en")
 }`;
 
-const getElement = string => `https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${string}&format=json&srlimit=100`;
+const getElement=(string)=>`https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${string}&format=json&srlimit=50`;
 
 const getInfoArtista = codiceArtista => `
 select distinct ?artista ?image ?startWork ?coord where {
@@ -187,7 +187,7 @@ const findSongByCodiciArtistAndSongName=(codiciArtisti,nomeCanzone)=>`
 SELECT DISTINCT  ?artista  ?canzoni  WHERE {
     values ?artista {${codiciArtisti.map(q => `wd:${q}`).join(" ")}}.
     {
-        ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527 ?canzoni.
+        ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
     }
     UNION{
             ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista;

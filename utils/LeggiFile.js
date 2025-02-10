@@ -42,6 +42,25 @@ function getListPlaylists(numFile) {
 
     return result;
 }
+
+
+function getPlaylistDyId(idPlaylist) {
+    const prefix_length = "mpd.slice.".length,
+          suffix_length = ".json".length;
+    idPlaylist = Number(idPlaylist);
+    const files = fs.readdirSync(playlist_path).filter(a => {
+        // Estrarre il primo numero dal nome del file
+        const bounds=a.slice(prefix_length,-suffix_length).split("-");
+        return Number(bounds[0])<=idPlaylist&&idPlaylist<=Number(bounds[1]);
+    });
+
+    const result = [];
+
+    for (let i=0; i<files.length; i++)
+        result.push(...getPlaylists(playlist_path + "/" + files[i]));
+
+    return result;
+}
 /*
 let ris=getListPlaylists(5)
 for(const playlists of ris) {
@@ -51,4 +70,4 @@ for(const playlists of ris) {
 }
 */
 //export default getListPlaylists;
-module.exports = { getSongs, getListPlaylists };
+module.exports = { getSongs, getListPlaylists,getPlaylistDyId };

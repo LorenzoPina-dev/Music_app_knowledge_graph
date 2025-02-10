@@ -1,11 +1,23 @@
 const express = require("express"),
       router = express.Router(),
-      { getSongs, getListPlaylists } = require('./../utils/LeggiFile.js'),
+      { getSongs, getListPlaylists,getPlaylistDyId } = require('./../utils/LeggiFile.js'),
       playlists = getListPlaylists(10),
       datasetSongs = getSongs();
 
 router.get('/numeroPlaylist', (_, res) => {
     res.json({ numPlaylist: playlists.length });
+});
+
+
+router.get('/song', (req, res) => {
+    const idPlaylist = Number(req.query.idPlaylist);
+    const idCanzone = Number(req.query.idCanzone);
+    const filePlaylist=getPlaylistDyId(idPlaylist);
+    const playlist=filePlaylist.filter(playlist =>playlist.pid===idPlaylist);
+    if(playlist.length===0) return res.status(404).json({error: "Playlist non trovata"});
+    let canzone=playlist[0].tracks.filter(c=>c.pos===idCanzone);
+    if(canzone.length===0) return res.status(404).json({error: "Canzone non trovata"});
+    res.json(canzone[0]);
 });
 
 router.get('/getNplaylist', (req, res) => {

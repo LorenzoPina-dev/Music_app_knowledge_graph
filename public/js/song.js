@@ -1,15 +1,29 @@
-async function GetData(idAutore,nomeAutore,nomeCanzone){
-    
-    let urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(idAutore)}`,
-    ris = await fetch(urlApi);
+async function GetData(id){
+    let datiCanzone={};
+    let urlApi = `http://localhost:3000/api/spotify/canzone?id=${id}`;
+    console.log(urlApi);
+    let ris = await fetch(urlApi);
+    ris=await ris.json();
+    console.log(ris);
+    let idAutore=ris.artists.map(a=>a.id);
+    let nomeAutore =ris.artists.map(a=>FormatArtistName( a.name)) ;
+    let nomeCanzone = FormatSongName( ris.name);
+    datiCanzone["artist"]=ris.artists.map(a=>{return {id: a.id, name: a.name}});
+    datiCanzone["nomeCanzone"]=ris.name;
+    datiCanzone["album"]={id: ris.album.id,name:ris.album.name};
+    datiCanzone["durata"]=ris.duration_ms;
+    datiCanzone["available_markets"]=ris.available_markets;
 
+    urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(idAutore[0])}`,
+    ris = await fetch(urlApi);
     let artisti = (await ris.json()).map(p => p.title);
     if (artisti.length === 0) {
-    urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeAutore)}`;
+    urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeAutore[0])}`;
     ris = await fetch(urlApi);
     artisti = (await ris.json()).map(p => p.title);
     }
-
+    console.log(artisti);
+    console.log(nomeCanzone);
     urlApi = `http://localhost:3000/api/wikidata/gettest`;
     ris = await fetch(urlApi, { 
     method: "POST",
@@ -38,7 +52,12 @@ async function GetData(idAutore,nomeAutore,nomeCanzone){
         return artisti.includes(url);
     });
 
-    return ris;
+    if(ris.length > 0){
+        datiCanzone["pubblicazione"]=ris.sort((a, b) => new Date(a.pubblicazione.value) - new Date(b.pubblicazione.value))[0].pubblicazione.value;
+        datiCanzone["generi"]=[...new Set(ris.map(c=>c.genereLabel.value))];
+    }
+
+    return datiCanzone;
 }
 
 
@@ -47,42 +66,46 @@ let nomCanzone;
 
 document.addEventListener("DOMContentLoaded", function () {
     let url=new URL(window.location.href);
-    const codiceArtista = url.searchParams.get('idAutore');
-    const nomeCanzone = url.searchParams.get('nomeSong');
-    const nomeAutore = url.searchParams.get('nomeAutore');
-    codA = codiceArtista;
-    nomCanzone=nomeCanzone;
-    console.log(codiceArtista);
-    console.log(nomeCanzone);
-    document.getElementById("nomeCanzone").innerHTML = nomeCanzone;
-    
-    const nc = FormatSongName(nomeCanzone);
-    const na =FormatArtistName(nomeAutore);
+    const idCanzone = url.searchParams.get('idCanzone');
 
-    
-
-    GetData(codA,na,nc)
+    GetData(idCanzone)
         .then(data => renderData(data)) // Handle the data
         .catch(error => console.error('Error:', error)); // Handle errors
 });
 
 function renderData(data){
+
+    /*
+    data={
+        album:{id: '5x8e8UcCeOgrOzSnDGuPye', name: 'PCD'}
+        artist:[{id: "6wPhSqRtPu1UhRCDX5yaDJ",name: "The Pussycat Dolls"}]
+        available_markets:['CA', 'MX', 'US']
+        durata:225560
+        generi:['contemporary R&B', 'pop music']
+        nomeCanzone:"Buttons"
+        pubblicazione:"2005-09-12T00:00:00Z"
+    }
+    */
    // const d=data.map(dat=>dat.nomeCanzone.value);
     console.log(data);
+    if(data.length == 0){
+        document.getElementById("nomeCanzone").innerHTML = "Canzone non trovata";
+        return;
+    }
     const timeline=document.createElement('table');
     data.forEach(el=>{
         let tr=document.createElement('tr');
         let td=document.createElement('td');
         td.style.border="1px solid";
-        td.innerHTML=el.artistaNome.value;
+        td.innerHTML=el.artistaLabel.value;
         tr.appendChild(td);
          td=document.createElement('td');
          td.style.border="1px solid";
-        td.innerHTML=el.nomeCanzone.value;
+        td.innerHTML=el.canzoniLabel.value;
         tr.appendChild(td);
          td=document.createElement('td');
          td.style.border="1px solid";
-        td.innerHTML=el.nomeGenere.value;
+        td.innerHTML=el.genereLabel.value;
         tr.appendChild(td);
         timeline.appendChild(tr);
     });
@@ -92,6 +115,7 @@ function renderData(data){
     
 
 
+    document.getElementById("nomeCanzone").innerHTML = data[0].nomeCanzone.value;
     let aAutor=document.getElementById("aArtista");
     let aAlbum=document.getElementById("aAlbum");
     let dataPubb=document.getElementById("dataPubblicazione");
