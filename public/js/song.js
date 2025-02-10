@@ -1,79 +1,68 @@
-async function GetData(id){
-    let datiCanzone={};
-    let urlApi = `http://localhost:3000/api/spotify/canzone?id=${id}`;
-    console.log(urlApi);
-    let ris = await fetch(urlApi);
-    ris=await ris.json();
-    console.log(ris);
-    let idAutore=ris.artists.map(a=>a.id);
-    let nomeAutore =ris.artists.map(a=>FormatArtistName( a.name)) ;
-    let nomeCanzone = FormatSongName( ris.name);
-    datiCanzone["artist"]=ris.artists.map(a=>{return {id: a.id, name: a.name}});
-    datiCanzone["nomeCanzone"]=ris.name;
-    datiCanzone["album"]={id: ris.album.id,name:ris.album.name};
-    datiCanzone["durata"]=ris.duration_ms;
-    datiCanzone["available_markets"]=ris.available_markets;
+async function GetData(id) {
+    const canzone_spotify = await api(`spotify/canzone?id=${id}`);
 
-    urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(idAutore[0])}`,
-    ris = await fetch(urlApi);
-    let artisti = (await ris.json()).map(p => p.title);
-    if (artisti.length === 0) {
-    urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeAutore[0])}`;
-    ris = await fetch(urlApi);
-    artisti = (await ris.json()).map(p => p.title);
-    }
-    console.log(artisti);
-    console.log(nomeCanzone);
-    urlApi = `http://localhost:3000/api/wikidata/gettest`;
-    ris = await fetch(urlApi, { 
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ codiciArtisti: artisti,nomeCanzone:nomeCanzone }) 
-    });
+    let idAutore = canzone_spotify.artists.map(a => a.id),
+        nomeAutore = canzone_spotify.artists.map(a => FormatArtistName(a.name)),
+        nomeCanzone = FormatSongName(canzone_spotify.name);
 
-    ris=await ris.json();
-    const codiciCanzoni= ris.map(c=>{
-        let url=c.canzoni.value;
-        return url.slice(url.lastIndexOf('/')+1);
-    });
-    console.log(codiciCanzoni);
-    
-    urlApi = `http://localhost:3000/api/wikidata/songById`;
-    ris = await fetch(urlApi, { 
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ codiciCanzoni: codiciCanzoni }) 
-    });
 
-    ris=await ris.json();
-    ris=ris.filter(c=>{
-        let url=c.artista.value;
-        url=url.slice(url.lastIndexOf('/')+1);
-        return artisti.includes(url);
-    });
+    const dati = canzone_spotify;
+    // const dati = {
+    //     artist: canzone_spotify.artists.map(a => {return {id:a.id, name:a.name}}),
+    //     nomeCanzone: canzone_spotify.name,
+    //     album: {
+    //         id:canzone_spotify.album.id, 
+    //         name:canzone_spotify.album.name
+    //     },
+    //     durata: canzone_spotify.duration_ms,
+    //     available_markets: canzone_spotify.available_markets
+    // }
 
-    if(ris.length > 0){
-        datiCanzone["pubblicazione"]=ris.sort((a, b) => new Date(a.pubblicazione.value) - new Date(b.pubblicazione.value))[0].pubblicazione.value;
-        datiCanzone["generi"]=[...new Set(ris.map(c=>c.genereLabel.value))];
+    let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(idAutore[0])}`),
+        codiciArtisti = artisti_str_search.map(p => p.title);
+    if (codiciArtisti.length === 0) {
+        artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(nomeAutore[0])}`),
+        codiciArtisti = artisti_str_search.map(p => p.title);
     }
 
-    return datiCanzone;
+    const id_canzoni = (await post_api(
+        'wikidata/gettest', 
+        { codiciArtisti, nomeCanzone }
+    )).map(c => {
+        const url = c.canzoni.value;
+        return url.slice(url.lastIndexOf('/') + 1);
+    });
+
+    const dati_canzoni = (await post_api(
+        'wikidata/songById',
+        { codiciCanzoni:id_canzoni }
+    )).filter(c => {
+        let url = c.artista.value;
+        url = url.slice(url.lastIndexOf('/') + 1);
+        return codiciArtisti.includes(url);
+    });
+
+    if (dati_canzoni.length > 0) {
+        dati.wikidata_release_date = dati_canzoni.sort((a, b) => new Date(a.pubblicazione.value) - new Date(b.pubblicazione.value))[0].pubblicazione.value;
+        dati.wikidata_genres = [...new Set(dati_canzoni.map(c => c.genereLabel.value))];
+    }
+
+    return dati;
 }
 
 
 let codA;
 let nomCanzone;
 
-document.addEventListener("DOMContentLoaded", function () {
-    let url=new URL(window.location.href);
-    const idCanzone = url.searchParams.get('idCanzone');
+document.addEventListener("DOMContentLoaded", async function () {
+    const url = new URL(window.location.href),
+          idCanzone = url.searchParams.get('idCanzone');
 
     GetData(idCanzone)
-        .then(data => renderData(data)) // Handle the data
-        .catch(error => console.error('Error:', error)); // Handle errors
+        .then(data => renderData(data))
 });
 
-function renderData(data){
+function renderData(data) {
 
     /*
     data={
@@ -88,48 +77,101 @@ function renderData(data){
     */
    // const d=data.map(dat=>dat.nomeCanzone.value);
     console.log(data);
-    if(data.length == 0){
-        document.getElementById("nomeCanzone").innerHTML = "Canzone non trovata";
-        return;
-    }
-    const timeline=document.createElement('table');
-    data.forEach(el=>{
-        let tr=document.createElement('tr');
-        let td=document.createElement('td');
-        td.style.border="1px solid";
-        td.innerHTML=el.artistaLabel.value;
-        tr.appendChild(td);
-         td=document.createElement('td');
-         td.style.border="1px solid";
-        td.innerHTML=el.canzoniLabel.value;
-        tr.appendChild(td);
-         td=document.createElement('td');
-         td.style.border="1px solid";
-        td.innerHTML=el.genereLabel.value;
-        tr.appendChild(td);
-        timeline.appendChild(tr);
-    });
-    timeline.style.borderCollapse="collapse";
-    timeline.style.width="100%";
-    document.getElementById("timeLine").appendChild(timeline);
     
+    //const timeline = document.createElement('table');
+    // data.forEach(el => {
+    //     const tr = document.createElement('tr');
+    //     let td = document.createElement('td');
 
+    //     td.innerHTML = el.artistaLabel.value;
+    //     tr.appendChild(td);
+    //     td = document.createElement('td');
 
-    document.getElementById("nomeCanzone").innerHTML = data[0].nomeCanzone.value;
-    let aAutor=document.getElementById("aArtista");
-    let aAlbum=document.getElementById("aAlbum");
-    let dataPubb=document.getElementById("dataPubblicazione");
-    dataPubb.innerHTML=data[0].pubblicazione.value;
-    aAutor.href=`/artist.html?idAutore=${codA}`;
-    aAlbum.href=`/album.html?idAutore=${codA}&idAlbum=${data[0].nomeAlbum.value}`;
-    aAutor.innerHTML=data[0].artistaNome.value;
-    aAlbum.innerHTML=data[0].nomeAlbum.value;
-    let divGeneri=document.getElementById('divgeneri');
-    divGeneri.innerHTML=''; // Clean previous content
-    data.forEach(e => {
-        console.log(e);
-        let h3=document.createElement('h3');
-        h3.innerHTML=e.nomeGenere.value;
-        divGeneri.appendChild(h3);
-    });
+    //     td.innerHTML = el.canzoniLabel.value;
+    //     tr.appendChild(td);
+
+    //     td = document.createElement('td');
+    //     td.innerHTML = el.genereLabel.value;
+    //     tr.appendChild(td);
+    //     timeline.appendChild(tr);
+    // });
+
+   // document.getElementById("timeLine").appendChild(timeline);
+
+    const song_name = data.name,
+          artists = data.artists,
+          album_name = data.album.name,
+          album_id = data.album.id,
+          duration = data.duration_ms,
+          release_date = data.album.release_date,
+          release_date_precision = data.album.release_date_precision;
+
+    console.log(release_date, release_date_precision)
+
+    const img = document.createElement("img");
+    img.src = data.album.images[1].url;
+    document.body.prepend(img);
+
+    const table = document.createElement("table"),
+          first_tr = document.createElement("tr"),
+          th = document.createElement("th"),
+          tr_artists = document.createElement("tr"),
+          td_artists = document.createElement("td"),
+          tr_album = document.createElement("tr"),
+          td_album = document.createElement("td"),
+          a_album = document.createElement("a"),
+          tr_duration = document.createElement("tr"),
+          td_duration = document.createElement("td"),
+          tr_release_data = document.createElement("tr"),
+          td_release_date = document.createElement("td");
+
+    th.textContent = `Canzone: ${song_name}`;
+    first_tr.appendChild(th);
+
+    table.appendChild(first_tr);
+
+    tr_artists.classList.add("artists");
+
+    for (let i=0; i<artists.length; i++) {
+        const a = document.createElement("a");
+        a.textContent = artists[i].name;
+        a.href = `/artist.html?idAutore=${artists[i].id}`;
+        td_artists.appendChild(a);
+    }
+
+    tr_artists.appendChild(td_artists);
+    table.appendChild(tr_artists);
+
+    a_album.textContent = album_name;
+    a_album.href = `/album.html?idAlbum=${album_id}`;
+
+    td_album.appendChild(a_album);
+    tr_album.appendChild(td_album);
+    table.appendChild(tr_album);
+
+    td_duration.textContent = formatMs(duration);
+
+    tr_duration.appendChild(td_duration);
+    table.appendChild(tr_duration);
+
+    td_release_date.textContent = formatDate(release_date, release_date_precision);
+
+    tr_release_data.appendChild(td_release_date);
+    table.appendChild(tr_release_data);
+
+    const genres = data.wikidata_genres;
+    if (genres !== undefined) {
+        const tr_genres = document.createElement("tr"),
+              td = document.createElement("td");
+        tr_genres.classList.add("genres");
+        for (let i=0; i<genres.length; i++) {
+            const a = document.createElement("a");
+            a.textContent = genres[i];
+            td.appendChild(a);
+        }
+        tr_genres.appendChild(td);
+        table.appendChild(tr_genres);
+    }
+
+    document.body.appendChild(table);
 }

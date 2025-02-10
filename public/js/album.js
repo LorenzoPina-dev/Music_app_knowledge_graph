@@ -41,6 +41,7 @@ function renderData(album) {
           tr_album_name = document.createElement("tr"),
           th_album_name = document.createElement("th"),
           tr_artists =  document.createElement("tr"),
+          td_artists = document.createElement("td"),
           tr_pubblication_date = document.createElement("tr"),
           td_pubblication_date = document.createElement("td"),
           tr_duration = document.createElement("tr"),
@@ -57,15 +58,11 @@ function renderData(album) {
     overview_table.classList.add("overview");
     tracks_table.classList.add("tracks");
 
-    const max_col_span = album.artists.length;
-    document.documentElement.style.setProperty('--artist-count', max_col_span.toString());
-
     let total_duration = 0;
 
     const album_name = album.name;
 
     th_album_name.textContent = `Album: ${album_name}`;
-    th_album_name.colSpan = max_col_span;
 
     tr_album_name.appendChild(th_album_name);
     overview_table.appendChild(tr_album_name);
@@ -74,8 +71,7 @@ function renderData(album) {
 
     const artists = album.artists;
     for (let i=0; i<artists.length; i++) {
-        const td = document.createElement("td"),
-              a = document.createElement("a");
+        const a = document.createElement("a");
 
         const artist_name = artists[i].name,
               artist_id = artists[i].id;
@@ -83,18 +79,16 @@ function renderData(album) {
         a.textContent = artist_name;
         a.href = `/artist.html?idAutore=${artist_id}`;
 
-        td.appendChild(a);
-        tr_artists.appendChild(td);
+        td_artists.appendChild(a);
+        tr_artists.appendChild(td_artists);
     }
     overview_table.appendChild(tr_artists);
 
     td_pubblication_date.textContent = `Data pubblicazione: ${formatDate(album.release_date, album.release_date_precision)}`;
-    td_pubblication_date.colSpan = max_col_span;
 
     tr_pubblication_date.appendChild(td_pubblication_date);
     overview_table.appendChild(tr_pubblication_date);
 
-    td_duration.colSpan = max_col_span;
 
     tr_duration.appendChild(td_duration);
     overview_table.appendChild(tr_duration);

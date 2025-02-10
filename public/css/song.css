@@ -18,6 +18,7 @@ table, tr, td, th {
 
 table {
     border-collapse: collapse;
+    width: 60%;
 }
 
 td, th {
@@ -62,42 +63,9 @@ tr:nth-child(even) {
     background-color: var(--even);
 }
 
-tr.artists td > a {
-	text-decoration: underline;
-    color: var(--text);
-}
-
-.artists td > a:nth-child(n+1) {
-    margin-left: 8px;
-}
-
 .overview {
 	width: 60%;
     margin: 0 0 35px 0;
-}
-
-.tracks {
-	width: 60%;
-}
-
-.tracks tr > td {
-    text-overflow: ellipsis;
-}
-
-.tracks tr > th, .tracks tr > td  {
-    text-align: left;
-    padding-left: 10px;
-}
-
-.tracks tr > td:first-child {
-    width: calc(100vw * (0.9 * 0.6));
-    max-width: calc(100vw * (0.9 * 0.6));
-}
-
-.tracks tr > td:last-child {
-    width: calc(100vw * (0.1 * 0.6));
-    max-width: calc(100vw * (0.1 * 0.6));
-    min-width: 80px;
 }
 
 td, th {
@@ -116,11 +84,24 @@ img {
     outline: 1px solid var(--text);
 }
 
-td a:nth-child(n+2) {
-    color: var(--darker-text);
+tr td > a:nth-child(n+1) {
+    margin-left: 8px;
+}
+
+.artists td a {
+    color: var(--text);
     text-decoration: underline;
 }
 
-td a:nth-child(n+4) {
-    margin-left: 5px;
+.artists a:nth-child(n+1) {
+    color: var(--text);
+}
+
+.genres td a {
+    text-decoration: underline;
+    color: var(--darker-text);
+}
+
+.genres a:nth-child(n+1) {
+    color: var(--darker-text);
 }

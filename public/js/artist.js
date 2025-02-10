@@ -85,14 +85,17 @@ function renderData(autore, album, idAutore) {
     }
 
     if (genre_count > 0) {
-        const tr_genres = document.createElement("tr");
-        tr_genres.classList.add("genres");
+        const tr = document.createElement("tr"),
+              td = document.createElement("td");
+        tr.classList.add("genres");
+
         for (let i=0; i<genre_count; i++) {
-            const td = document.createElement("td");
-            td.textContent = genres[i];
-            tr_genres.appendChild(td);
+            const a = document.createElement("a");
+            a.textContent = genres[i];
+            td.appendChild(a);
         }
-        overview_table.appendChild(tr_genres);
+        tr.appendChild(td);
+        overview_table.appendChild(tr);
     }
 
     document.body.prepend(overview_table);
@@ -120,38 +123,43 @@ function renderData(autore, album, idAutore) {
         container.appendChild(div);
     }
 
+
+    
     const limit = album.limit,
           offset = album.offset;
 
-    const navigate = document.createElement("div"),
-          left_button = document.createElement("div"),
-          left_a = document.createElement("a"),
-          right_button = document.createElement("div"),
-          right_a = document.createElement("a");
+    if (album_count > limit) {
 
-    navigate.classList.add("navigate");
+        const navigate = document.createElement("div"),
+            left_button = document.createElement("div"),
+            left_a = document.createElement("a"),
+            right_button = document.createElement("div"),
+            right_a = document.createElement("a");
 
-    const left_limit = offset - limit < 0 ? 0 : offset - limit,
-          right_limit = offset + limit;
+        navigate.classList.add("navigate");
 
-    left_a.textContent = "<";
-    right_a.textContent = ">";
+        const left_limit = offset - limit < 0 ? 0 : offset - limit,
+            right_limit = offset + limit;
 
-    if (offset !== 0)
-        left_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${left_limit}`) : void 0;
-    else
-        left_button.classList.add("blocked");
+        left_a.textContent = "<";
+        right_a.textContent = ">";
 
-    if (right_limit < album_count)
-        right_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${right_limit}`) : void 0;
-    else
-        right_button.classList.add("blocked");
+        if (offset !== 0)
+            left_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${left_limit}`) : void 0;
+        else
+            left_button.classList.add("blocked");
 
-    left_button.appendChild(left_a);
-    right_button.appendChild(right_a);
+        if (right_limit < album_count)
+            right_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${right_limit}`) : void 0;
+        else
+            right_button.classList.add("blocked");
 
-    navigate.appendChild(left_button);
-    navigate.appendChild(right_button);
+        left_button.appendChild(left_a);
+        right_button.appendChild(right_a);
 
-    document.body.appendChild(navigate);
+        navigate.appendChild(left_button);
+        navigate.appendChild(right_button);
+
+        document.body.appendChild(navigate);
+    }
 }

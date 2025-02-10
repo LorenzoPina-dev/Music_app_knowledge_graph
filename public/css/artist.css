@@ -1,7 +1,3 @@
-:root {
-    --genre-count: 1;
-}
-
 html, body {
 	width: inherit;
 }
@@ -65,8 +61,12 @@ tr:nth-child(even) {
     background-color: var(--even);
 }
 
-.genres > td {
-	width: calc(100% * (1 / var(--genre-count)));
+.genres td > a {
+	text-decoration: underline;
+}
+
+.genres td > a:nth-child(n+1) {
+    margin-left: 8px;
 }
 
 .overview {
