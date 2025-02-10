@@ -39,6 +39,7 @@ async function spotifyAuthenticationHelper(fn, arg) {
             res(response);
         }
         catch (err) {
+            console.error(`Errore nella ri-autenticazione/chiamata di Spotify: ${err}`);
             rej(err);
         }
     });
@@ -58,9 +59,9 @@ router.get('/album', async (req, res) => {
 
 router.get('/albumAutore', async (req, res) => {
     const idAutore = req.query.idAutore;
-    
+
     try {
-        const data = await spotifyAuthenticationHelper("getArtistAlbums", idAutore);
+        const data = await spotifyApi.getArtistAlbums(idAutore, { album_type:"album", limit:50 });
         res.json(data);
     }
     catch (err) {

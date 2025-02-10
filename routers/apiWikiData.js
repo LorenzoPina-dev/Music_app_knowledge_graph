@@ -57,7 +57,7 @@ router.get("/elemento", async (req, res) => {
 
     try {
         const data = await fetchData(getElement(stringa), true);
-        res.json(data);
+        res.json(data.query.search);
     }
     catch (err) {
         console.error(err);

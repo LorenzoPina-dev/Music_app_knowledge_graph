@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     fetch(urlApi)
         .then(response => response.json()) // Parse response as JSON
-        .then(data => renderData(data.body, idAlbum))
+        .then(data => renderData(data.body))
         //.then(data => renderData(data, nomePlaylist, useSpotify)) // Handle the data
         //.catch(error => console.error('Error:', error)); // Handle errors
 });
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
  * Tracce: []
  */
-function renderData(album,album_id) {
+function renderData(album) {
     const overview_table = document.createElement("table"),
           tr_album_name = document.createElement("tr"),
           th_album_name = document.createElement("th"),
@@ -47,7 +47,8 @@ function renderData(album,album_id) {
           td_duration = document.createElement("td"),
           tracks_table = document.createElement("table"),
           tr_tracks = document.createElement("tr"),
-          th_tracks = document.createElement("th");
+          th_tracks_name = document.createElement("th"),
+          th_tracks_duration = document.createElement("th");
 
     const album_img = document.createElement("img");
     album_img.src = album.images[1].url;
@@ -98,47 +99,60 @@ function renderData(album,album_id) {
     tr_duration.appendChild(td_duration);
     overview_table.appendChild(tr_duration);
 
-    th_tracks.textContent = "tracks";
-    th_tracks.colSpan = 3;
+    th_tracks_name.textContent = "# titolo";
+    tr_tracks.appendChild(th_tracks_name);
 
-    tr_tracks.appendChild(th_tracks);
+    th_tracks_duration.textContent = "durata";
+    tr_tracks.appendChild(th_tracks_duration);
+
     tracks_table.appendChild(tr_tracks);
 
-    
+    console.log(artists)
+
     const songs = album.tracks.items;
     for (let i=0; i<songs.length; i++) {
         const tr = document.createElement("tr"),
               td_song = document.createElement("td"),
               a_song = document.createElement("a"),
-              td_autor = document.createElement("td"),
+              //td_autor = document.createElement("td"),
               a_autor = document.createElement("a"),
-              td_album = document.createElement("td"),
-              a_album = document.createElement("a");
+              td_duration = document.createElement("td");
 
         const s = songs[i];
 
-        const artist_id = artists[0].id,
-              artist_name = artists[0].name,
+        const main_artist_id = artists[0].id,
+              main_artist_name = artists[0].name,
               //song_id = s.id,
-              song_name = s.name;
+              song_name = s.name,
+              song_duration = s.duration_ms;
 
         total_duration += s.duration_ms;
 
-        a_song.href = `/song.html?nomeSong=${encodeURIComponent(song_name)}&idAutore=${artist_id}`;
+        a_song.href = `/song.html?nomeSong=${encodeURIComponent(song_name)}&idAutore=${main_artist_id}`;
         a_song.textContent = song_name;
         td_song.appendChild(a_song);
 
-        a_album.href = `/album.html?idAlbum=${album_id}`;
-        a_album.textContent = album_name;
-        td_album.appendChild(a_album);
+        td_song.appendChild(document.createElement("br"));
 
-        a_autor.href = `/artist.html?idAutore=${artist_id}`;
-        a_autor.textContent = artist_name;
-        td_autor.appendChild(a_autor);
+        a_autor.href = `/artist.html?idAutore=${main_artist_id}`;
+        a_autor.textContent = main_artist_name;
+        td_song.appendChild(a_autor);
+
+        for (let i=1; i<artists.length; i++) {
+            const artist_id = artists[i].id,
+                  artist_name = artists[i].name,
+                  a = document.createElement("a");
+
+            a.textContent = artist_name;
+            a.href = `/artist.html?idAutore=${artist_id}`;
+            td_song.appendChild(a);
+        }
+
+        td_duration.textContent = formatMs(song_duration);
         
         tr.appendChild(td_song);
-        tr.appendChild(td_album);
-        tr.appendChild(td_autor);
+        //tr.appendChild(td_autor);
+        tr.appendChild(td_duration);
 
         tracks_table.appendChild(tr);
     }

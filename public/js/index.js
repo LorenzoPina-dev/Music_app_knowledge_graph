@@ -38,13 +38,14 @@ document.addEventListener("DOMContentLoaded", function () {
 function renderData(arr) {
     const container = document.getElementById("container"),
           h1 = document.createElement("h1");
+    console.log(arr)
     h1.textContent = "Playlists";
     document.body.prepend(h1);
     for (let i = 0; i < arr.length; i++) {
         const div = document.createElement("div"), a = document.createElement("a");
         const name = arr[i].name;
         a.textContent = name;
-        a.href = `/playlist.html?idPlaylist=${arr[i].pid}&nomePlaylist=${name}&useSpotify=${false}`;
+        a.href = `/playlist.html?idPlaylist=${arr[i].pid}&nomePlaylist=${name}`;
 
         div.appendChild(a);
         container.appendChild(div);

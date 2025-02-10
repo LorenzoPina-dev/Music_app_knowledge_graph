@@ -26,14 +26,12 @@ table {
 }
 
 td, th {
-    padding: 8px;
     text-overflow: ellipsis;
     vertical-align: middle;
     overflow: hidden;
     text-overflow: clip;
-    white-space: nowrap;
     text-align: center;
-    border-right: 2px solid var(--odd);
+    white-space: nowrap;
 }
 
 th:last-child, td:last-child {
@@ -41,16 +39,23 @@ th:last-child, td:last-child {
 }
 
 td {
+    border-right: 2px solid var(--odd);
     color: var(--text);
+    padding: 13px;
 }
 
 th {
 	background-color: var(--highlight-contrast);
+    padding: 8px;
+}
+
+tr:first-child {
+    user-select: none;
 }
 
 tr:first-child > th {
 	font-size: small;
-    padding: 3px;
+    padding: 8px 13px;
     color: var(--highlight-text);
 }
 
@@ -68,7 +73,7 @@ tr:nth-child(even) {
 
 .overview {
 	width: 60%;
-    margin: 0 0 50px 0;
+    margin: 0 0 35px 0;
 }
 
 .tracks {
@@ -76,9 +81,23 @@ tr:nth-child(even) {
 }
 
 .tracks tr > td {
-    width: calc(100vw * (0.3333 * 0.6));
-    max-width: calc(100vw * (0.3333 * 0.6));
     text-overflow: ellipsis;
+}
+
+.tracks tr > th, .tracks tr > td  {
+    text-align: left;
+    padding-left: 10px;
+}
+
+.tracks tr > td:first-child {
+    width: calc(100vw * (0.9 * 0.6));
+    max-width: calc(100vw * (0.9 * 0.6));
+}
+
+.tracks tr > td:last-child {
+    width: calc(100vw * (0.1 * 0.6));
+    max-width: calc(100vw * (0.1 * 0.6));
+    min-width: 80px;
 }
 
 td, th {
@@ -95,4 +114,13 @@ img {
     height: 300px;
     margin: 0 0 35px 0;
     outline: 1px solid var(--text);
+}
+
+td a:nth-child(n+2) {
+    color: var(--darker-text);
+    text-decoration: underline;
+}
+
+td a:nth-child(n+4) {
+    margin-left: 5px;
 }

@@ -102,7 +102,7 @@ function renderData(autore, album, idAutore) {
     for (let i=0; i<album.limit; i++) {
         const div = document.createElement("div"),
               img = document.createElement("img"),
-              a = document.createElement("a")
+              a = document.createElement("a");
 
         const al = album.items[i];
 
@@ -110,9 +110,9 @@ function renderData(autore, album, idAutore) {
 
         img.src = al.images[1].url; // 300x300
         div.appendChild(img);
-
-        a.href = `/album.html?idAlbum=${al.uri.slice("spotify:album:".length)}`;
         div.appendChild(a);
+
+        div.onmouseup = e => e.button === 0 ? window.location.assign(`/album.html?idAlbum=${al.uri.slice("spotify:album:".length)}`) : void 0;
 
         container.appendChild(div);
     }

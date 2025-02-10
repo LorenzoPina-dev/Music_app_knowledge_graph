@@ -1,27 +1,25 @@
 let songs;
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     let url = new URL(window.location.href);
 
     const idPlaylist = url.searchParams.get('idPlaylist'),
-          nomePlaylist = url.searchParams.get('nomePlaylist'),
-          useSpotify = url.searchParams.get('useSpotify') == "true";
-    console.log( url.searchParams.get('useSpotify'));
-    let urlApi;
-    if (useSpotify) 
-        urlApi = `http://localhost:3000/api/spotify/playlist/?idPlaylist=${idPlaylist}`;
-    else
-        urlApi = `http://localhost:3000/api/getSongPlaylist?idPlaylist=${idPlaylist}`;
-    console.log(urlApi);
+          nomePlaylist = url.searchParams.get('nomePlaylist');
+          //useSpotify = url.searchParams.get('useSpotify') == "true";
+    
+    //if (useSpotify) 
+    //    urlApi = `http://localhost:3000/api/spotify/playlist/?idPlaylist=${idPlaylist}`;
+
+    const urlApi = `http://localhost:3000/api/getSongPlaylist?idPlaylist=${idPlaylist}`;
+    
     fetch(urlApi)
         .then(response => response.json()) // Parse response as JSON
-        .then(data => renderData(data, nomePlaylist, useSpotify)) // Handle the data
+        .then(data => renderData(data, nomePlaylist)) // Handle the data
         .catch(error => console.error('Error:', error)); // Handle errors
 });
 
-function renderData(data, title, useSpotify) {
-    //console.log(data)
-    songs = data;
-    var i=0;
+function renderData(songs, title) {
+    let i = 0;
+
     Promise.all(songs.map(async e => {
         const artista = e.artist_uri.split(":")[2],
               nomeArtista = FormatArtistName(e.artist_name),
@@ -45,89 +43,90 @@ function renderData(data, title, useSpotify) {
         });
         
         const canzoniTrovate = await ris.json();
-        //console.log(infoCanzoni);
-       /* const canzoniTrovate=canzoniTrovate.filter(canzoni =>{
-           let nc= canzoni.nomeCanzone.value.toLowerCase();
-           let ns=nomeCanzone.toLowerCase();
-           return nc.includes(ns)||ns.includes(nc);
 
-        });*/
-        //console.log(canzoniTrovate);
         if (canzoniTrovate.length === 0) {
             console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone, art: artisti, info:canzoniTrovate });
             i++;
         }
-       /* urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeCanzone)}`;
-        ris = await fetch(urlApi);
-        const canzoni = (await ris.json()).map(p => p.title);
+    })).then(_ => {
+        console.log("fatto");
+        console.log(i+" su "+songs.length+" elementi non trovati");
+    });
 
-
-        urlApi = `http://localhost:3000/api/wikidata/songById`;
-        ris = await fetch(urlApi, { 
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ codiciCanzoni: canzoni, codiciArtisti: artId}) 
-        });
-        
-        const infoCanzoni = await ris.json();
-        if (infoCanzoni.length == 0) {
-            console.log({ nomeArt: e.artist_name, nomeCanzone: nomeCanzone, art: art, canzoni: canzoni,info:infoCanzoni,artId:artId });
-        }*/
-    })).then(_ => {console.log("fatto");
-    console.log(i+" su "+songs.length+" elementi non trovati");});
     const table = document.createElement("table"),
+          h1 = document.createElement("h1"),
           first_tr = document.createElement("tr"),
-          th = document.createElement("th");
+          th_song = document.createElement("th"),
+          //th_autor = document.createElement("th"),
+          th_album = document.createElement("th"),
+          th_duration = document.createElement("th");
 
-    th.textContent = `Playlist: ${title}`;
-    th.colSpan = 3;
+    h1.textContent = `Playlist: ${title}`;
+    document.body.prepend(h1);
 
-    first_tr.appendChild(th);
-    table.appendChild(first_tr);
+    th_song.textContent = "# titolo";
+    //th_autor.textContent = "autore";
+    th_album.textContent = "album";
+    th_duration.textContent = "durata";
 
-    for (let i=0; i<data.length; i++) {
+    first_tr.appendChild(th_song);
+    //first_tr.appendChild(th_autor);
+    first_tr.appendChild(th_album);
+    first_tr.appendChild(th_duration);
+
+    table.prepend(first_tr);
+
+    for (let i=0; i<songs.length; i++) {
         
         const tr = document.createElement("tr"),
               td_song = document.createElement("td"),
               a_song = document.createElement("a"),
-              td_autor = document.createElement("td"),
+              //td_autor = document.createElement("td"),
               a_autor = document.createElement("a"),
               td_album = document.createElement("td"),
-              a_album = document.createElement("a");
+              a_album = document.createElement("a"),
+              td_duration = document.createElement("td");
 
-        const s = data[i];
+        const s = songs[i];
 
-        let artist, album,song,albumId,artistId;
-        if (useSpotify) {
-            artistId = s.artists[0];
-            album = s.album;
-            song = s.name;
-            albumId = album;
-            artist = artistId;
-        }
-        else {
-            artistId = s.artist_uri.slice("spotify:artist:".length);
-            albumId = s.album_uri.slice("spotify:album:".length);
-            song = s.track_name;
-            album = s.album_name;
-            artist = s.artist_name;
-        }
+        //let artist, album,song,albumId,artistId;
+        // if (useSpotify) {
+        //     artistId = s.artists[0];
+        //     album = s.album;
+        //     song = s.name;
+        //     albumId = album;
+        //     artist = artistId;
+        // }
+
+        const artistId = s.artist_uri.slice("spotify:artist:".length);
+              albumId = s.album_uri.slice("spotify:album:".length);
+              song = s.track_name;
+              album = s.album_name;
+              artist = s.artist_name;
+
 
         a_song.href = `/song.html?nomeSong=${encodeURIComponent(song)}&idAutore=${artistId}&nomeAutore=${encodeURIComponent(artist)}`;
         a_song.textContent = song;
         td_song.appendChild(a_song);
 
+        td_song.appendChild(document.createElement("br"));
+
+        a_autor.href = `/artist.html?idAutore=${artistId}`;
+        a_autor.textContent = artist;
+        td_song.appendChild(a_autor);
+
         a_album.href = `/album.html?idAlbum=${albumId}`;
         a_album.textContent = album;
         td_album.appendChild(a_album);
 
-        a_autor.href = `/artist.html?idAutore=${artistId}`;
-        a_autor.textContent = artist;
-        td_autor.appendChild(a_autor);
+        //td_autor.appendChild(a_autor);
         
+        td_duration.textContent = formatMs(s.duration_ms);
+
         tr.appendChild(td_song);
+        //tr.appendChild(td_autor);
         tr.appendChild(td_album);
-        tr.appendChild(td_autor);
+        tr.appendChild(td_duration);
 
         table.appendChild(tr);
     }
