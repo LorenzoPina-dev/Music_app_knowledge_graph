@@ -40,9 +40,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 // track 	
 
 function renderData(autore, album, idAutore) {
-    console.log(album)
-
-    const container = document.getElementById("container");
+    const container = document.createElement("div");
+    container.id = "container";
 
     const name = autore.name,
           followers = autore.followers.total,
@@ -122,8 +121,6 @@ function renderData(autore, album, idAutore) {
 
         container.appendChild(div);
     }
-
-
     
     const limit = album.limit,
           offset = album.offset;
@@ -139,18 +136,21 @@ function renderData(autore, album, idAutore) {
         navigate.classList.add("navigate");
 
         const left_limit = offset - limit < 0 ? 0 : offset - limit,
-            right_limit = offset + limit;
+              right_limit = offset + limit;
 
         left_a.textContent = "<";
         right_a.textContent = ">";
 
+        const back = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${left_limit}`) : void 0,
+              forward = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${right_limit}`) : void 0;
+
         if (offset !== 0)
-            left_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${left_limit}`) : void 0;
+            left_button.onmouseup = back;
         else
             left_button.classList.add("blocked");
 
         if (right_limit < album_count)
-            right_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${right_limit}`) : void 0;
+            right_button.onmouseup = forward;
         else
             right_button.classList.add("blocked");
 
@@ -160,6 +160,20 @@ function renderData(autore, album, idAutore) {
         navigate.appendChild(left_button);
         navigate.appendChild(right_button);
 
+        const navigate_clone = navigate.cloneNode(true);
+
+        navigate_clone.firstChild.onmouseup = left_button.onmouseup;  
+        navigate_clone.lastChild.onmouseup = right_button.onmouseup;
+
+        window["test"] = navigate_clone;
+
         document.body.appendChild(navigate);
+
+        document.body.appendChild(container);
+
+        document.body.appendChild(navigate_clone);
+    }
+    else {
+        document.body.appendChild(container);
     }
 }

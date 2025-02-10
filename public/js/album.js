@@ -103,13 +103,15 @@ function renderData(album) {
 
     const songs = album.tracks.items;
     for (let i=0; i<songs.length; i++) {
+        
         const tr = document.createElement("tr"),
-              td_song = document.createElement("td"),
-              a_song = document.createElement("a"),
-              a_autor = document.createElement("a"),
-              td_duration = document.createElement("td");
-
-        const s = songs[i];
+        td_song = document.createElement("td"),
+        a_song = document.createElement("a"),
+        a_autor = document.createElement("a"),
+        td_duration = document.createElement("td");
+        
+        const s = songs[i],
+              artists = s.artists;
 
         const main_artist_id = artists[0].id,
               main_artist_name = artists[0].name,
@@ -130,7 +132,7 @@ function renderData(album) {
         td_song.appendChild(a_autor);
 
         for (let i=1; i<artists.length; i++) {
-            const artist_id = artists[i].id,
+            const artist_id = artists[i].id;
                   artist_name = artists[i].name,
                   a = document.createElement("a");
 
