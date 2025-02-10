@@ -1,0 +1,33 @@
+#map-overlay {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    top: 0;
+    display: none;
+    pointer-events: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    background-color: rgba(0,0,0,0.5);
+}
+
+#map-overlay #map {
+    width: 90%;
+    height: 90%;
+}
+
+#map-overlay button {
+    position: fixed;
+    right: 3%;
+    top: 3%;
+    width: 30px;
+    height: 30px;
+    background-color: var(--highlight-contrast);
+    border: 1px solid var(--highlight-text);
+    color: var(--highlight-text);
+    transition: all 0.25s;
+}
+
+#map-overlay button:hover {
+    background: var(--button-hover);
+}

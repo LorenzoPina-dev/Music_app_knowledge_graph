@@ -7,6 +7,7 @@
     --odd: #1e2222;
     --highlight-contrast: #0e361e;
     --bg: #0a0b0b;
+    --button-hover: #1c7d1c;
 }
 
 @layer {
