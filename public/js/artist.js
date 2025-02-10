@@ -73,10 +73,6 @@ function renderData(autore, album, idAutore) {
     // 
     // if (luogo_nascita !== undefined)
 
-    td_album_count.textContent = `Numero di album: ${album_count}`;
-    tr_album_count.appendChild(td_album_count);
-    overview_table.appendChild(tr_album_count);
-
     if (max_col_span > 1) {
         document.documentElement.style.setProperty('--genre-count', max_col_span.toString());
         th_name.colSpan = max_col_span;
@@ -97,6 +93,10 @@ function renderData(autore, album, idAutore) {
         tr.appendChild(td);
         overview_table.appendChild(tr);
     }
+
+    td_album_count.textContent = `Numero di risultati: ${album_count}`;
+    tr_album_count.appendChild(td_album_count);
+    overview_table.appendChild(tr_album_count);
 
     document.body.prepend(overview_table);
 

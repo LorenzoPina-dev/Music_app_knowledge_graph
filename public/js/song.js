@@ -149,12 +149,12 @@ function renderData(data) {
     tr_album.appendChild(td_album);
     table.appendChild(tr_album);
 
-    td_duration.textContent = formatMs(duration);
+    td_duration.textContent = `durata: ${formatMs(duration)}`;
 
     tr_duration.appendChild(td_duration);
     table.appendChild(tr_duration);
 
-    td_release_date.textContent = formatDate(release_date, release_date_precision);
+    td_release_date.textContent = `data di pubblicazione: ${formatDate(release_date, release_date_precision)}`;
 
     tr_release_data.appendChild(td_release_date);
     table.appendChild(tr_release_data);

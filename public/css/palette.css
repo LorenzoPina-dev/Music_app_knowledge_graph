@@ -14,3 +14,7 @@
         scrollbar-color: #373b3e #1a1c1d;
     }
 }
+
+img {
+    pointer-events: none;
+}
