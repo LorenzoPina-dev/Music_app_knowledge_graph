@@ -59,9 +59,11 @@ router.get('/album', async (req, res) => {
 
 router.get('/albumAutore', async (req, res) => {
     const idAutore = req.query.idAutore;
+    let t = Number(req.query.offset);
+    const offset = t !== t ? 0 : t;
 
     try {
-        const data = await spotifyApi.getArtistAlbums(idAutore, { album_type:"album", limit:50 });
+        const data = await spotifyApi.getArtistAlbums(idAutore, { album_type:"album", limit:48, offset });
         res.json(data);
     }
     catch (err) {

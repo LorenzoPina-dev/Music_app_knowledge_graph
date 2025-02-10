@@ -107,14 +107,11 @@ function renderData(album) {
 
     tracks_table.appendChild(tr_tracks);
 
-    console.log(artists)
-
     const songs = album.tracks.items;
     for (let i=0; i<songs.length; i++) {
         const tr = document.createElement("tr"),
               td_song = document.createElement("td"),
               a_song = document.createElement("a"),
-              //td_autor = document.createElement("td"),
               a_autor = document.createElement("a"),
               td_duration = document.createElement("td");
 
@@ -122,13 +119,13 @@ function renderData(album) {
 
         const main_artist_id = artists[0].id,
               main_artist_name = artists[0].name,
-              //song_id = s.id,
               song_name = s.name,
-              song_duration = s.duration_ms;
+              song_duration = s.duration_ms,
+              song_uri  = s.uri.slice("spotify:track:".length);
 
         total_duration += s.duration_ms;
 
-        a_song.href = `/song.html?nomeSong=${encodeURIComponent(song_name)}&idAutore=${main_artist_id}`;
+        a_song.href = `/song.html?idCanzone=${song_uri}`;
         a_song.textContent = song_name;
         td_song.appendChild(a_song);
 
@@ -151,12 +148,11 @@ function renderData(album) {
         td_duration.textContent = formatMs(song_duration);
         
         tr.appendChild(td_song);
-        //tr.appendChild(td_autor);
         tr.appendChild(td_duration);
 
         tracks_table.appendChild(tr);
     }
-    td_duration.textContent = `Durata: ${formatMs(total_duration)}`;
+    td_duration.textContent = `Durata: ${formatAlbumMs(total_duration)}`;
 
     document.body.appendChild(overview_table);
     document.body.appendChild(tracks_table);

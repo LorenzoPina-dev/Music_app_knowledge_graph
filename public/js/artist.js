@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", async function () {
     let url = new URL(window.location.href);
 
-    const idAutore = url.searchParams.get('idAutore');
+    const idAutore = url.searchParams.get('idAutore'),
+          offset = url.searchParams.get('offset');
 
     
     try {
@@ -18,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async function () {
          * items: [{name, uri, total_tracks}]
          * total
          */
-              album = await (await fetch(`http://localhost:3000/api/spotify/albumAutore/?idAutore=${idAutore}`)).json();
+              album = await (await fetch(`http://localhost:3000/api/spotify/albumAutore/?idAutore=${idAutore}&offset=${offset}`)).json();
               //dati_personali = await (await fetch(`http://localhost:3000/api/wikidata/`)).json();
 
         renderData(autore.body, album.body, idAutore);
@@ -39,6 +40,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 // track 	
 
 function renderData(autore, album, idAutore) {
+    console.log(album)
+
     const container = document.getElementById("container");
 
     const name = autore.name,
@@ -99,7 +102,7 @@ function renderData(autore, album, idAutore) {
     author_img.alt = name;
     document.body.prepend(author_img);
 
-    for (let i=0; i<album.limit; i++) {
+    for (let i=0; i<album.items.length; i++) {
         const div = document.createElement("div"),
               img = document.createElement("img"),
               a = document.createElement("a");
@@ -116,4 +119,39 @@ function renderData(autore, album, idAutore) {
 
         container.appendChild(div);
     }
+
+    const limit = album.limit,
+          offset = album.offset;
+
+    const navigate = document.createElement("div"),
+          left_button = document.createElement("div"),
+          left_a = document.createElement("a"),
+          right_button = document.createElement("div"),
+          right_a = document.createElement("a");
+
+    navigate.classList.add("navigate");
+
+    const left_limit = offset - limit < 0 ? 0 : offset - limit,
+          right_limit = offset + limit;
+
+    left_a.textContent = "<";
+    right_a.textContent = ">";
+
+    if (offset !== 0)
+        left_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${left_limit}`) : void 0;
+    else
+        left_button.classList.add("blocked");
+
+    if (right_limit < album_count)
+        right_button.onmouseup = e => e.button === 0 ? window.location.assign(`/artist.html?idAutore=${idAutore}&offset=${right_limit}`) : void 0;
+    else
+        right_button.classList.add("blocked");
+
+    left_button.appendChild(left_a);
+    right_button.appendChild(right_a);
+
+    navigate.appendChild(left_button);
+    navigate.appendChild(right_button);
+
+    document.body.appendChild(navigate);
 }

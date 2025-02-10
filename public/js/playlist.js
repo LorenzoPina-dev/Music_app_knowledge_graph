@@ -4,10 +4,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const idPlaylist = url.searchParams.get('idPlaylist'),
           nomePlaylist = url.searchParams.get('nomePlaylist');
-          //useSpotify = url.searchParams.get('useSpotify') == "true";
-    
-    //if (useSpotify) 
-    //    urlApi = `http://localhost:3000/api/spotify/playlist/?idPlaylist=${idPlaylist}`;
 
     const urlApi = `http://localhost:3000/api/getSongPlaylist?idPlaylist=${idPlaylist}`;
     
@@ -50,14 +46,13 @@ function renderData(songs, title) {
         }
     })).then(_ => {
         console.log("fatto");
-        console.log(i+" su "+songs.length+" elementi non trovati");
+        console.log(`${i} su ${songs.length} elementi non trovati`);
     });
 
     const table = document.createElement("table"),
           h1 = document.createElement("h1"),
           first_tr = document.createElement("tr"),
           th_song = document.createElement("th"),
-          //th_autor = document.createElement("th"),
           th_album = document.createElement("th"),
           th_duration = document.createElement("th");
 
@@ -65,12 +60,10 @@ function renderData(songs, title) {
     document.body.prepend(h1);
 
     th_song.textContent = "# titolo";
-    //th_autor.textContent = "autore";
     th_album.textContent = "album";
     th_duration.textContent = "durata";
 
     first_tr.appendChild(th_song);
-    //first_tr.appendChild(th_autor);
     first_tr.appendChild(th_album);
     first_tr.appendChild(th_duration);
 
@@ -81,7 +74,6 @@ function renderData(songs, title) {
         const tr = document.createElement("tr"),
               td_song = document.createElement("td"),
               a_song = document.createElement("a"),
-              //td_autor = document.createElement("td"),
               a_autor = document.createElement("a"),
               td_album = document.createElement("td"),
               a_album = document.createElement("a"),
@@ -98,14 +90,14 @@ function renderData(songs, title) {
         //     artist = artistId;
         // }
 
-        const artistId = s.artist_uri.slice("spotify:artist:".length);
-              albumId = s.album_uri.slice("spotify:album:".length);
-              song = s.track_name;
-              album = s.album_name;
+        const artistId = s.artist_uri.slice("spotify:artist:".length),
+              albumId = s.album_uri.slice("spotify:album:".length),
+              song = s.track_name,
+              songUri = s.track_uri.slice("spotify:track:".length),
+              album = s.album_name,
               artist = s.artist_name;
 
-
-        a_song.href = `/song.html?nomeSong=${encodeURIComponent(song)}&idAutore=${artistId}&nomeAutore=${encodeURIComponent(artist)}`;
+        a_song.href = `/song.html?idCanzone=${songUri}`;
         a_song.textContent = song;
         td_song.appendChild(a_song);
 
@@ -118,13 +110,10 @@ function renderData(songs, title) {
         a_album.href = `/album.html?idAlbum=${albumId}`;
         a_album.textContent = album;
         td_album.appendChild(a_album);
-
-        //td_autor.appendChild(a_autor);
         
         td_duration.textContent = formatMs(s.duration_ms);
 
         tr.appendChild(td_song);
-        //tr.appendChild(td_autor);
         tr.appendChild(td_album);
         tr.appendChild(td_duration);
 

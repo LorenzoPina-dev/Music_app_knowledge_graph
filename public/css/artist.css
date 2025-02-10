@@ -99,9 +99,8 @@ td > a {
     min-width: 50px;
     aspect-ratio: 1/1; /* Ensures perfect square */
     overflow: hidden;
-    transition: all 0.3s;
+    transition: all 0.1s;
     flex-direction: column;
-    user-select: none;
 }
 
 #container div > a {
@@ -109,13 +108,14 @@ td > a {
     color: var(--text);
     font-weight: bold;
     text-align: center;
-    transition: all 0.3s;
+    transition: all 0.1s;
     width: 99.3335%;
     height: 11.8919%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: 15px;
+    user-select: none;
 }
 
 #container div > img {
@@ -123,10 +123,8 @@ td > a {
     height: 100%;
     flex-shrink: 0;
     user-select: none;
-    transition: all 0.25s ease-in;
-
-    /*position: relative;
-    top: -6px;*/
+    transition: all 0.1s;
+    z-index: 1;
 }
 
 #container div:hover {
@@ -148,4 +146,43 @@ body > img {
     height: 300px;
     margin: 0 0 35px 0;
     outline: 1px solid var(--text);
+}
+
+.navigate {
+    width: 20%;
+    display: flex;
+    justify-content: space-around;
+    align-content: center;
+    align-items: center;
+    flex-direction: row;
+    border-radius: 15px;
+    padding: 0;
+    user-select: none;
+}
+
+.navigate div {
+    width: 50%;
+    text-align: center;
+    background: var(--odd);
+}
+
+.navigate div:first-child {
+    border-radius: 15px 0 0 15px;
+}
+
+.navigate .blocked {
+    background-color: var(--blocked);
+}
+
+.navigate div:last-child {
+    border-radius: 0 15px 15px 0;
+}
+
+.navigate div a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.navigate div:not(.blocked):hover {
+    background-color: var(--even);
 }
