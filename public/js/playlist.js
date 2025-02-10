@@ -1,27 +1,54 @@
 let songs;
+function sistemaDati(data){
+    let ris = {};
+    ris.name = data.name;
+    ris.tracks = data.tracks.map(item => {
+        let ris = {};
+        ris.artist_uri = "spotify:artist:"+item.artists[0].id;
+        ris.artist_name = item.artists[0].name;
+        ris.track_name = item.name;
+        ris.album_uri = "spotify:album:"+item.album.id;
+        ris.album_name = item.album.name;
+        ris.duration_ms = item.duration_ms;
+        ris.track_uri ="spotify:track:"+item.id;
+        return ris;
+    });
+    return ris;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     let url = new URL(window.location.href);
-
-    const idPlaylist = url.searchParams.get('idPlaylist'),
-          nomePlaylist = url.searchParams.get('nomePlaylist');
-
-    const urlApi = `http://localhost:3000/api/getSongPlaylist?idPlaylist=${idPlaylist}`;
+    const urlSpotify=url.searchParams.get('idSpotify'),
+          idPlaylist = url.searchParams.get('idPlaylist'),
+          useSpotify=urlSpotify!==null;
+    const idSpotify=useSpotify?urlSpotify.includes('http')? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1,urlSpotify.indexOf('?')):urlSpotify:null;
+    const urlApi = `http://localhost:3000/api/${useSpotify? `spotify/playlist?idPlaylist=${idSpotify}`:
+                                                            `getPlaylist?idPlaylist=${idPlaylist}`}`;
     
     fetch(urlApi)
         .then(response => response.json()) // Parse response as JSON
-        .then(data => renderData(data, nomePlaylist)) // Handle the data
+        .then(data => renderData(useSpotify?sistemaDati(data):data)) // Handle the data
         .catch(error => console.error('Error:', error)); // Handle errors
 });
 
-function renderData(songs, title) {
+function renderData(playlist ) {
     let i = 0;
-
+    let title=playlist.name;
+    let songs=playlist.tracks;
     Promise.all(songs.map(async e => {
         const artista = e.artist_uri.split(":")[2],
               nomeArtista = FormatArtistName(e.artist_name),
               nomeCanzone = FormatSongName(e.track_name);
-
-        let urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(artista)}`,
+        let urlApi = `http://localhost:3000/api/songFeature?track_name=${encodeURIComponent(e.track_name)}`,
+        ris = await fetch(urlApi);
+        if (ris.status===400) {
+            i++;
+        }else
+        {
+            console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone });
+        const featureCanzone = await ris.json();
+        }
+         /*urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(artista)}`,
               ris = await fetch(urlApi);
 
         let artisti = (await ris.json()).map(p => p.title);
@@ -31,6 +58,7 @@ function renderData(songs, title) {
             artisti = (await ris.json()).map(p => p.title);
         }
         
+
         urlApi = `http://localhost:3000/api/wikidata/gettest`;
         ris = await fetch(urlApi, { 
             method: "POST",
@@ -39,16 +67,16 @@ function renderData(songs, title) {
         });
         
         const canzoniTrovate = await ris.json();
-
         if (canzoniTrovate.length === 0) {
             console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone, art: artisti, info:canzoniTrovate });
             i++;
-        }
+            
+        }*/
+        
     })).then(_ => {
         console.log("fatto");
         console.log(`${i} su ${songs.length} elementi non trovati`);
     });
-
     const table = document.createElement("table"),
           h1 = document.createElement("h1"),
           first_tr = document.createElement("tr"),

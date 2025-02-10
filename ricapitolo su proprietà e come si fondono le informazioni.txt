@@ -169,7 +169,7 @@ api:
 	getNplaylist 
 	getSongPlaylist
 	getAutoriInPlaylist
-	getAutoriSong
+	getAutoreSong
 	getLocation
 	
 

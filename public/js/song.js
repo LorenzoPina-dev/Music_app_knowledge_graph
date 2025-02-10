@@ -1,11 +1,12 @@
 async function GetData(id) {
     const canzone_spotify = await api(`spotify/canzone?id=${id}`);
-
+    
     let idAutore = canzone_spotify.artists.map(a => a.id),
         nomeAutore = canzone_spotify.artists.map(a => FormatArtistName(a.name)),
         nomeCanzone = FormatSongName(canzone_spotify.name);
 
-
+    const featureCanzone = await api(`songFeature?track_name=${encodeURIComponent(canzone_spotify.name)}`);
+    console.log(featureCanzone);
     const dati = canzone_spotify;
     // const dati = {
     //     artist: canzone_spotify.artists.map(a => {return {id:a.id, name:a.name}}),

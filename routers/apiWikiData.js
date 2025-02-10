@@ -101,7 +101,6 @@ router.post("/songByIdArtisti", async (req, res) =>{
         res.json(data.results.bindings);
     }
     catch (err) {
-        console.log(getQueryCanzoniFatteDaId(artist));
         console.error(err);
     }
 });
@@ -116,7 +115,6 @@ router.post("/gettest", async (req, res) =>{
         res.json(data.results.bindings);
     }
     catch (err) {
-        console.log(getQueryCanzoniFatteDaId(artist));
         console.error(err);
     }
 });

@@ -89,9 +89,25 @@ router.get('/playlist', async (req, res) => {
     //console.log(playlistId);
 
     try {
-        const data = await spotifyAuthenticationHelper("getPlaylistTracks", playlistId);
+        const data = await spotifyAuthenticationHelper("getPlaylist", playlistId);
+       // console.log(data.body.tracks.items.map(t=>t.track));
+        //const data2 = await spotifyAuthenticationHelper("getPlaylistTracks", playlistId);
+/*
+{
+            "name": "Throwbacks", 
+            "collaborative": "false", 
+            "pid": 0, 
+            "modified_at": 1493424000, 
+            "num_tracks": 52, 
+            "num_albums": 47, 
+            "num_followers": 1, 
+            "tracks": [
+                {
+            */
 
-        const tracks = data.body.items.map(item => ({
+        let {name,images,tracks,..._}=data.body;
+        const playlist={name:name,images:images,tracks:tracks.items.map(t=>t.track)};
+        /*const playlist = data.body.map(item => ({
             name: item.track.name,
             artists: item.track.artists.map(artist => artist.id),
             album: item.track.album.name,
@@ -102,8 +118,8 @@ router.get('/playlist', async (req, res) => {
             preview_url: item.track.preview_url,
             image: item.track.album.images.length > 0 ? item.track.album.images[0].url : null,
         }));
-
-        res.json(tracks);
+*/
+        res.json(playlist);
     }
     catch (err) {
         res.status(500).json({ error: err.message });

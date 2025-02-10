@@ -1,9 +1,13 @@
 const express = require("express"),
+      fs=require("fs");
+const 
       router = express.Router(),
-      { getSongs, getListPlaylists,getPlaylistDyId } = require('./../utils/LeggiFile.js'),
-      playlists = getListPlaylists(10),
-      datasetSongs = getSongs();
+      { getSongs, getListPlaylists, getPlaylistDyId,getNames } = require('./../utils/LeggiFile.js'),
+      datasetSongs = getSongs(),
+      playlists=JSON.parse(fs.readFileSync("nomiPlaylist.json"));
 
+    //fs.writeFileSync("nomiPlaylist.json", JSON.stringify(nomi));
+      
 router.get('/numeroPlaylist', (_, res) => {
     res.json({ numPlaylist: playlists.length });
 });
@@ -21,29 +25,33 @@ router.get('/song', (req, res) => {
 });
 
 router.get('/getNplaylist', (req, res) => {
-    const filtro = req.query.filtro,
+    let filtro = req.query.filtro,
           partenza = req.query.start ?? 0,
           quanti = req.query.max ?? 50;
 
     if (filtro === undefined) {
-        const risp = playlists.slice(partenza, quanti).map(p => {
-            const {tracks, ...risposta} = p;
-            return risposta
-        });
+        const risp = playlists.slice(partenza, quanti).map((p,i)=>{return {pid:i+partenza, name:p}});
         res.json(risp);
         return;
     }
 
-    const risp = playlists
-                    .filter(p => p.name.toLowerCase().includes(filtro.toLowerCase()))
-                    .slice(partenza, quanti).map(p => {
-                        const {tracks, ...risposta} = p;
-                        return risposta
-                    });
+    let risp = [];
+    let trovati=0;
+    let i=0;
+    filtro=filtro.toLowerCase();
+    while(i<playlists.length && risp.length<quanti){
+        var playlist = playlists[i];
+        if (playlist.toLowerCase().includes(filtro)) {
+            trovati++;
+            if(trovati>=partenza)
+                risp.push({pid:i, name:playlist});
+        }
+        i++;
+    }
     res.json(risp);
 });
 
-  router.get('/getSongPlaylist', (req, res) => {
+  router.get('/getPlaylist', (req, res) => {
     let idPlaylist = req.query.idPlaylist;
     if (idPlaylist === undefined) {
         res.status(400).send("Mancante l'id della playlist");
@@ -51,13 +59,13 @@ router.get('/getNplaylist', (req, res) => {
     }
     idPlaylist = Number(idPlaylist);
 
-    const playlist = playlists.filter(playlist => playlist.pid === idPlaylist)[0];
+    const playlist = getPlaylistDyId(idPlaylist).filter(p => p.pid === idPlaylist)[0];
     if (playlist === undefined) {
         res.sendStatus(400);
         return;
     }
 
-    res.json(playlist.tracks);
+    res.json(playlist);
 });
 
 router.get('/getAutoriInPlaylist', (req, res) => {
@@ -79,20 +87,20 @@ router.get('/getAutoriInPlaylist', (req, res) => {
 });
 
 
-router.get('/getAutoreSong', (req, res) => {
-    const track_name = req.query.track_name;
+router.get('/songFeature', (req, res) => {
+    const track_name = req.query.track_name.toLocaleLowerCase();
     if (track_name === undefined) {
         res.status(400).send("Mancante il track_name della canzone");
         return;
     }
 
-    const song = datasetSongs.filter(playlist => playlist.track_name === track_name)[0];
-    if (song === undefined) {
-        res.sendStatus(400);
+    const song = datasetSongs.filter(playlist => playlist.track_name === track_name);
+    if (song.length===0) {
+        res.status(400).json({ error:"nome_canzone non trovato"});
         return;
     }
     
-    res.json(song.artist_name);
+    res.json(song[0]);
 });
 
 router.get('/songs', (_, res) => {
