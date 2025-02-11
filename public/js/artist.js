@@ -5,10 +5,39 @@ document.addEventListener("DOMContentLoaded", async function () {
     const autore = await api(`spotify/autore/?idAutore=${idAutore}`),
           album = await api(`spotify/albumAutore/?idAutore=${idAutore}&offset=${offset}`);
 
-    renderData(autore.body, album.body, idAutore);
+    let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(idAutore)}`),
+        codiciArtisti = artisti_str_search.map(p => p.title),
+        info_artista ={};
+    if (codiciArtisti.length === 0) {
+        artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.name)}`),
+        codiciArtisti = artisti_str_search.map(p => p.title);
+        info_artista = (await post_api(
+            'wikidata/artista', 
+            { codiciArtisti }
+        ));
+    
+    }
+    else{
+        info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(idAutore)}`);
+    }
+    
+    let informazioni_wikidata = {};
+    if(info_artista.length ===0)
+        info_artista = null;
+    else{
+        informazioni_wikidata.artista=info_artista[0].artista.value;
+        let coord=info_artista[0].coord.value;
+        let info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
+        informazioni_wikidata.coord={lat:info_coord[1],lng:info_coord[0]};
+        informazioni_wikidata.origin=info_artista[0].originLabel.value;
+        informazioni_wikidata.startWork=info_artista[0].startWork.value;
+        informazioni_wikidata.premi=[... new Set(info_artista.map(i=>i.premiLabel.value))];
+        console.log(informazioni_wikidata);
+    }
+    renderData(informazioni_wikidata,autore.body, album.body, idAutore);
 });
 
-function renderData(autore, album, idAutore) {
+function renderData(informazioni_wikidata,autore, album, idAutore) {
     const container = document.createElement("div");
     container.id = "container";
 
@@ -51,7 +80,7 @@ function renderData(autore, album, idAutore) {
     if (genre_count > 0) {
         const tr = document.createElement("tr"),
               td = document.createElement("td");
-        tr.classList.add("genres");
+        tr.classList.add("lista");
 
         for (let i=0; i<genre_count; i++) {
             const a = document.createElement("a");
@@ -60,6 +89,42 @@ function renderData(autore, album, idAutore) {
         }
         tr.appendChild(td);
         overview_table.appendChild(tr);
+    }
+    if(informazioni_wikidata!=null){
+        let tr = document.createElement("tr"),
+            td = document.createElement("td"),
+            button = document.createElement("button");
+        button.textContent = informazioni_wikidata.origin;
+        button.onclick = () => {
+            let lat=Number(informazioni_wikidata.coord.lat),
+                lng=Number(informazioni_wikidata.coord.lng);
+            console.log([lat, lng]);
+            toggle_map_overlay();
+            render_map([lat, lng],[{lat, lng,name:name}] );
+        };
+        td.appendChild(button);
+        tr.appendChild(td);
+        overview_table.appendChild(tr);
+        tr = document.createElement("tr"),
+        td = document.createElement("td");
+        td.innerText="Inizio cariera: "+formatDate(informazioni_wikidata.startWork);
+        tr.appendChild(td);
+        overview_table.appendChild(tr);
+        const premi_count=informazioni_wikidata.premi.length;
+        if(premi_count>0)
+        {
+            tr = document.createElement("tr"),
+            td = document.createElement("td");
+            tr.classList.add("lista");
+
+            for (let i=0; i<premi_count; i++) {
+                const a = document.createElement("a");
+                a.textContent = informazioni_wikidata.premi[i];
+                td.appendChild(a);
+            }
+            tr.appendChild(td);
+            overview_table.appendChild(tr);
+        }
     }
 
     td_album_count.textContent = `Numero di risultati: ${album_count}`;

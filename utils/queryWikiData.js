@@ -29,55 +29,71 @@ SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
 
 const getElement=(string)=>`https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${string}&format=json&srlimit=50`;
 
-const getInfoArtista = codiceArtista =>
-    `select distinct ?artista ?image ?startWork ?coord ?premi where {
+
+
+const getInfoArtistaByIdSpotify = codiceArtista =>
+    `select distinct ?artista ?image ?startWork ?originLabel ?coord ?premi ?premiLabel where {
         ?artista wdt:P1902 "${codiceArtista}";
         optional{
             ?artista wdt:P569|wdt:P571 ?startWork;
         }
         optional{
             ?artista wdt:P19|wdt:P19/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }
         optional{
             ?artista wdt:P740|wdt:P740/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }
         optional{
             ?artista wdt:P495|wdt:P495/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }optional{
             ?artista wdt:P27|wdt:P27/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }
+        filter(lang(?originLabel)="en").
         optional{
-            artista wdt:P166 ?premi.
+            ?artista wdt:P166 ?premi.
+            ?premi rdfs:label ?premiLabel.
+            FILTER(lang(?premiLabel) = "en").
         }
     }`;
     
-const getInfoArtistaByCodici = codiciArtista =>
-    `select distinct ?artista ?image ?startWork ?coord ?premi where {
+const getInfoArtistaByCodiciWikidata = codiciArtista =>
+    `select distinct ?artista ?image ?startWork ?originLabel ?coord ?premi ?premiLabel where {
         VALUES ?artista { ${artists.map(q => `wd:${q}`).join(" ")} }.
         optional{
             ?artista wdt:P569|wdt:P571 ?startWork;
         }
         optional{
             ?artista wdt:P19|wdt:P19/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }
         optional{
             ?artista wdt:P740|wdt:P740/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }
         optional{
             ?artista wdt:P495|wdt:P495/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }optional{
             ?artista wdt:P27|wdt:P27/wdt:P1366 ?origin.
-            ?origin wdt:P625 ?coord.
+            ?origin wdt:P625 ?coord;
+                    rdfs:label ?originLabel.
         }
+        filter(lang(?originLabel)="en").
         optional{
-            artista wdt:P166 ?premi.
+            ?artista wdt:P166 ?premi.
+            ?premi rdfs:label ?premiLabel.
+            FILTER(lang(?premiLabel) = "en").
         }
     }`;
 
@@ -260,4 +276,4 @@ SELECT distinct ?canzoni ?canzoniLabel ?artista ?artistaLabel ?genere ?genereLab
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 } LIMIT 100`
 
-module.exports = {getQueryCanzoniMusicista,getInfoArtista,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName,getInfoArtistaByCodici};
+module.exports = {getQueryCanzoniMusicista,getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName};

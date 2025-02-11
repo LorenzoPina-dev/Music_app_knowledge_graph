@@ -61,16 +61,19 @@ tr:nth-child(even) {
     background-color: var(--even);
 }
 
-.genres td > a {
+.lista td{
+	white-space: normal;
+}
+.lista td > a {
 	text-decoration: underline;
 }
 
-.genres td > a:nth-child(n+1) {
+.lista td > a:nth-child(n+1) {
     margin-left: 8px;
 }
 
 .overview {
-	width: 42%;
+	width: 60%;
     margin: 0 0 35px 0;
 }
 

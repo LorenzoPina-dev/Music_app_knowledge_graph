@@ -1,13 +1,13 @@
 const express = require('express'),
       { /*makeRequests, delay,*/ creaOption,fetchData} = require("../utils/GestioneRichieste.js"),
       { getQueryCanzoniMusicista,
-        getInfoArtista,
+        getInfoArtistaByIdSpotify,
+        getInfoArtistaByCodiciWikidata,
         getQueryCanzone,
         getElement, 
         getInfoCanzoneByLabels,
         getQueryCanzoniFatteDaId,
-        findSongByCodiciArtistAndSongName,
-        getInfoArtistaByCodici
+        findSongByCodiciArtistAndSongName
       } = require("../utils/queryWikiData.js");
 
 router = express.Router(),
@@ -44,7 +44,7 @@ router.get('/song', async (req, res) => {
 router.post('/artista', async (req, res) => {
     const codiciArtisti = req.body.codiciArtisti;
     try {
-        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByCodici(codiciArtisti)) }&format=json`,
+        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByCodiciWikidata(codiciArtisti)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings)
     }
@@ -54,10 +54,10 @@ router.post('/artista', async (req, res) => {
 });
 
 router.get('/artista', async (req, res) => {
-    const codiceArtista = req.query.codiceArtista;
+    const idSpotify = req.query.idSpotify;
 
     try {
-        const url = `/sparql?query=${ encodeURIComponent(getInfoArtista(codiceArtista)) }&format=json`,
+        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByIdSpotify(idSpotify)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings)
     }
