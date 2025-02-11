@@ -57,7 +57,7 @@ function renderData(data) {
           release_date = data.album.release_date,
           release_date_precision = data.album.release_date_precision;
 
-    console.log(release_date, release_date_precision)
+          document.title = song_name;
 
     const img = document.createElement("img");
     img.src = data.album.images[1].url;

@@ -54,6 +54,7 @@ function renderData(album) {
     let total_duration = 0;
 
     const album_name = album.name;
+    document.title = album_name;
 
     th_album_name.textContent = `Album: ${album_name}`;
 

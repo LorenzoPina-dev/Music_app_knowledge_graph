@@ -26,7 +26,7 @@ let map_overlay = null,
 
 document.addEventListener("DOMContentLoaded", () => {
     map_overlay = document.createElement("div");
-    map_overlay.id = "map-overlay";
+    map_overlay.classList.add("overlay");
     map_element = document.createElement("div");
     map_element.id = "map";
     const map_overlay_button = document.createElement("button");

@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     else{
         info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(idAutore)}`);
     }
-    
     let informazioni_wikidata = {};
     if(info_artista.length ===0)
         informazioni_wikidata = null;
@@ -47,6 +46,8 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
           genres = autore.genres,
           genre_count = genres.length,
           max_col_span = genre_count || 1;
+
+    document.title = name;
 
     const overview_table = document.createElement("table"),
           tr_name = document.createElement("tr"),
