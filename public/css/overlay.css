@@ -16,6 +16,11 @@
     height: 90%;
 }
 
+.overlay #timeline {
+    width: 90%;
+    height: 90%;
+}
+
 .overlay button {
     position: fixed;
     right: 1%;
@@ -32,20 +37,30 @@
     background: var(--button-hover);
 }
 
-#map-toggle {
-    background-image: url("../icons/map_icon.png");
+.toggle {
     background-repeat: no-repeat;
     background-size: contain;
-    width: 64px;
-    height: 64px;
+    width: 4.3478%;
+    height: 9.0014%;
     position: fixed;
-    left: 3%;
-    top: 50%;
     transform: translate(-50%,-50%);
     transition: all 0.15s;
+    display: none;
+    left: 3%;
 }
 
-#map-toggle:hover {
-    width: 80px;
-    height: 80px;
+.toggle:hover {
+    width: 5.4347%;
+    height: 11.2517%;
+}
+
+#map-toggle {
+    top: 50%;
+    background-image: url("../icons/map_icon.png");
+}
+
+#timeline-toggle {
+    display: block;
+    top: 35%;
+    background-image: url("../icons/timeline_icon.png");
 }

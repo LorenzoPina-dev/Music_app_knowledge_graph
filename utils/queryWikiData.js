@@ -67,7 +67,7 @@ const getInfoArtistaByIdSpotify = (codiceArtista,limit) =>
     
 const getInfoArtistaByCodiciWikidata =  (codiceArtista,limit) =>
     `select distinct ?artista ?image ?startWork ?originLabel ?coord ?premi ?premiLabel where {
-        VALUES ?artista { ${codiciArtista.map(q => `wd:${q}`).join(" ")} }.
+        VALUES ?artista { ${codiceArtista.map(q => `wd:${q}`).join(" ")} }.
         optional{
             ?artista wdt:P569|wdt:P571 ?startWork;
         }

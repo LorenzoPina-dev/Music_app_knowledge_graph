@@ -7,7 +7,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(idAutore)}`),
         codiciArtisti = artisti_str_search.map(p => p.title),
-        info_artista ={};
+        info_artista = {};
+
     if (codiciArtisti.length === 0) {
         artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.name)}`),
         codiciArtisti = artisti_str_search.map(p => p.title);
@@ -15,23 +16,29 @@ document.addEventListener("DOMContentLoaded", async function () {
             'wikidata/artista', 
             { codiciArtisti }
         ));
-    
     }
-    else{
-        info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(idAutore)}`);
-    }
+    else info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(idAutore)}`);
+
     let informazioni_wikidata = {};
-    if(info_artista.length ===0)
+    if (info_artista.length === 0)
         informazioni_wikidata = null;
     else{
-        informazioni_wikidata.artista=info_artista[0].artista.value;
-        let coord=info_artista[0].coord.value;
-        let info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
-        informazioni_wikidata.coord={lat:info_coord[1],lng:info_coord[0]};
-        informazioni_wikidata.origin=info_artista[0].originLabel.value;
-        informazioni_wikidata.startWork=info_artista[0].startWork.value;
-        informazioni_wikidata.premi=[... new Set(info_artista.filter(i=>i.premiLabel!==undefined).map(i=>i.premiLabel.value))];
-        console.log(informazioni_wikidata);
+        const coord = info_artista.filter(a => a.artista !== undefined)[0]?.coord.value,
+              info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
+        
+        informazioni_wikidata = {
+            artista: info_artista.filter(a => a.artista !== undefined)[0]?.artista.value,
+            coord: { lat:info_coord[1], lng:info_coord[0] },
+            origin: info_artista.filter(a => a.originLabel !== undefined)[0]?.originLabel.value,
+            startWork: info_artista.filter(a => a.startWork !== undefined)[0]?.startWork.value,
+            premi: [
+                ...new Set(
+                    info_artista
+                        .filter(i => i.premiLabel !== undefined)
+                        .map(i => i.premiLabel.value)
+                )
+            ]
+        }
     }
     renderData(informazioni_wikidata,autore.body, album.body, idAutore);
 });
@@ -91,7 +98,7 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
         tr.appendChild(td);
         overview_table.appendChild(tr);
     }
-    if(informazioni_wikidata!=null){
+    if (informazioni_wikidata !== null) {
         let tr = document.createElement("tr"),
             td = document.createElement("td"),
             button = document.createElement("button");
@@ -100,8 +107,7 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
             let lat=Number(informazioni_wikidata.coord.lat),
                 lng=Number(informazioni_wikidata.coord.lng);
             console.log([lat, lng]);
-            toggle_map_overlay();
-            render_map([lat, lng],[{lat, lng,name:name}] );
+            render_map([lat, lng],[{lat, lng,name:name}], 11);
         };
         td.appendChild(button);
         tr.appendChild(td);

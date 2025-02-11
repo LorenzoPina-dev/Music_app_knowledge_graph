@@ -26,7 +26,6 @@ document.addEventListener("DOMContentLoaded", async function () {
           idPlaylist = searchParams.getString("idPlaylist"),
           useSpotify = urlSpotify.length !== 0;
 
-    console.log(useSpotify)
     let data=null;
     if (useSpotify) {
         const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify;
@@ -39,9 +38,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         renderData(data);
     }
 
-    const map_toggle = document.getElementById("map-toggle");
-
-    if (map_toggle !== null) {
+    if (map_icon !== null) {
         let songs = data.tracks;
         let coordinate=[];
         Promise.all(songs.map(async s => {
@@ -57,7 +54,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                     'wikidata/artista', 
                     { codiciArtisti,limit:1 }
                 ));
-                
             }
             else{
                 info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(id_autore)}&limit=1`);
@@ -66,72 +62,89 @@ document.addEventListener("DOMContentLoaded", async function () {
             let informazioni_wikidata = {};
             if(info_artista.length ===0)
                 informazioni_wikidata = null;
-            else{
+            else {
                 informazioni_wikidata.artista=info_artista[0].artista.value;
                 let coord=info_artista[0].coord.value;
                 let info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
                 const linkMap=`<a href="/artist.html?idAutore=${id_autore}">${nome_autore}</a>`;
                 coordinate.push({lat:info_coord[1],lng:info_coord[0],name:linkMap});
             }
+        })).then(()=>{
+            map_icon.style.display = "block";
+            map_icon.onmouseup = e => {
+                if (e.button === 0) {
+                    if (map === null)
+                        render_map([41.9028, 12.4964], coordinate,2);
+                    else
+                        toggle_map_overlay();
+                }
+            }
+            console.log("finito");
+        })
+    }
 
-    })).then(()=>{
-        
-        map_toggle.onmouseup = e => {
+    if (timeline_icon !== null) {
+        timeline_icon.style.display = "block";
+        timeline_icon.onmouseup = e => {
             if (e.button === 0) {
-                toggle_map_overlay()
-                if (map_is_visible && map === null)
-                    render_map([41.9028, 12.4964], coordinate,2);
+                if (timeline === null)
+                    render_timeline("titolo","sottotitolo",
+                        [{quasinome:"nome1",quando:135},{quasinome:"nome2",quando:3},{quasinome:"nome3",quando:-1},{quasinome:"nome4",quando:50}],
+                        (a,b) => a.quando - b.quando,
+                        v => { return { name:v.quasinome, description:`successo nel ${v.quando}.` } })
+                else
+                    toggle_timeline_overlay();
             }
         }
-        console.log("finito");
-    })
     }
+
 });
 
 function renderData(playlist) {
     let i = 0;
     let title = playlist.name;
     let songs = playlist.tracks;
-    Promise.all(songs.map(async e => {
-        const artista = e.artist_uri.split(":")[2],
-              nomeArtista = FormatArtistName(e.artist_name);
+    document.title = title;
+    // Promise.all(songs.map(async e => {
+    //     const artista = e.artist_uri.split(":")[2],
+    //           nomeArtista = FormatArtistName(e.artist_name);
 
-        const ris = await api(`songFeature?track_name=${encodeURIComponent(e.track_name)}`);
-        if (ris.status === 400) {
-            i++;
-        }
-        else {
-            console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone });
-            //const featureCanzone = await ris.json();
-        }
-         /*urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(artista)}`,
-              ris = await fetch(urlApi);
+    //     const ris = await api(`songFeature?track_name=${encodeURIComponent(e.track_name)}`);
+    //     if (ris.status === 400) {
+    //         i++;
+    //     }
+    //     else {
+    //         console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone });
+    //         //const featureCanzone = await ris.json();
+    //     }
+    //      /*urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(artista)}`,
+    //           ris = await fetch(urlApi);
 
-        let artisti = (await ris.json()).map(p => p.title);
-        if (artisti.length === 0) {
-            urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeArtista)}`;
-            ris = await fetch(urlApi);
-            artisti = (await ris.json()).map(p => p.title);
-        }
+    //     let artisti = (await ris.json()).map(p => p.title);
+    //     if (artisti.length === 0) {
+    //         urlApi = `http://localhost:3000/api/wikidata/elemento?stringa=${encodeURIComponent(nomeArtista)}`;
+    //         ris = await fetch(urlApi);
+    //         artisti = (await ris.json()).map(p => p.title);
+    //     }
         
 
-        urlApi = `http://localhost:3000/api/wikidata/gettest`;
-        ris = await fetch(urlApi, { 
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ codiciArtisti: artisti,nomeCanzone:nomeCanzone }) 
-        });
+    //     urlApi = `http://localhost:3000/api/wikidata/gettest`;
+    //     ris = await fetch(urlApi, { 
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify({ codiciArtisti: artisti,nomeCanzone:nomeCanzone }) 
+    //     });
         
-        const canzoniTrovate = await ris.json();
-        if (canzoniTrovate.length === 0) {
-            console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone, art: artisti, info:canzoniTrovate });
-            i++;
+    //     const canzoniTrovate = await ris.json();
+    //     if (canzoniTrovate.length === 0) {
+    //         console.log({ nomeArt: nomeArtista, nomeCanzone: nomeCanzone, art: artisti, info:canzoniTrovate });
+    //         i++;
             
-        }*/
+    //     }*/
         
-    })).then(_ => {
-        console.log(`${i} su ${songs.length} elementi non trovati`);
-    });
+    // })).then(_ => {
+    //     console.log(`${i} su ${songs.length} elementi non trovati`);
+    // });
     const table = document.createElement("table"),
           h1 = document.createElement("h1"),
           first_tr = document.createElement("tr"),
