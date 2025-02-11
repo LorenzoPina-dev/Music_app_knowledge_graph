@@ -1,51 +1,54 @@
-class SPARQLQueryDispatcher {
-	constructor( endpoint ) {
-		this.endpoint = endpoint;
-	}
-
-	query( sparqlQuery ) {
-		const fullUrl = this.endpoint + '?query=' + encodeURIComponent( sparqlQuery );
-		const headers = { 'Accept': 'application/sparql-results+json' };
-
-		return fetch( fullUrl, { headers } ).then( body => body.json() );
-	}
-}
-
-const maxPlaylistPerPage=48;
+const maxPlaylistPerPage = 48;
 let content = null;
 
-async function fetchJson(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Errore HTTP! Status: ${response.status}`);
-        
-        const data = await response.json();
-        return data;
-    } 
-    catch (error) {
-        console.error("Errore nella richiesta:", error);
-    }
-}
-
 document.addEventListener("DOMContentLoaded", async function () {
-    const url = new URL(window.location.href),
-        filtro = url.searchParams.get('filtro') ?? '',
-        offset = Number(url.searchParams.get('offset')) ?? 0,
-        limit=(await fetchJson(`/api/numeroPlaylist`)).numPlaylist;
-    fetchJson(`/api/getNplaylist?max=${200}&start=${offset}&filtro=${filtro}`)
-        .then(data => renderData(data,filtro,offset,maxPlaylistPerPage,limit))
-        .catch(err => console.error(err));
+    const filtro = searchParams.getString("filtro"),
+          offset = searchParams.getNumber("offset"),
+          limit = (await api("numeroPlaylist")).numPlaylist;
+
+    const data = await api(`getNplaylist?max=${200}&start=${offset}&filtro=${filtro}`);
+    renderData(data, filtro, offset, maxPlaylistPerPage, limit);
 });
 
-function renderData(arr,filtro,offset,numPlaylistPagina,totalePlaylist) {
+function createForm(action, param, placeholder, button_text) {
+    const form = document.createElement("form"),
+          text = document.createElement("input"),
+          button = document.createElement("input");
+
+    form.action = action;
+    form.method = "get";
+
+    text.type = "text";
+    text.id = param;
+    text.name = param;
+    text.placeholder = placeholder;
+
+    button.type = "submit";
+    button.value = button_text;
+
+    form.appendChild(text);
+    form.appendChild(button);
+
+    return form;
+}
+
+function renderData(arr, filtro, offset, numPlaylistPagina, totalePlaylist) {
     const container = document.createElement("div"),
           h1 = document.createElement("h1");
-    container.id="container";
+    container.id = "container";
     h1.textContent = "Playlists";
-    document.body.prepend(h1);
+    
+
+    const div_form = document.createElement("div"),
+          spotify_form = createForm("/playlist.html", "idSpotify", "link/id spotify", "usa"),
+          internal_form = createForm("", "filtro", "nome playlist locale", "&#128269;");
+
+    div_form.append(spotify_form, internal_form);
+    document.body.prepend(h1, div_form);
+
     for (let i = 0; i < Math.min(arr.length,numPlaylistPagina); i++) {
-        const div = document.createElement("div"), a = document.createElement("a");
-        const name = arr[i].name;
+        const div = document.createElement("div"), a = document.createElement("a"),
+              name = arr[i].name;
         a.textContent = name;
         a.href = `/playlist.html?idPlaylist=${arr[i].pid}&nomePlaylist=${name}`;
 
@@ -95,9 +98,7 @@ function renderData(arr,filtro,offset,numPlaylistPagina,totalePlaylist) {
         window["test"] = navigate_clone;
 
         document.body.appendChild(navigate);
-
         document.body.appendChild(container);
-
         document.body.appendChild(navigate_clone);
     }
     else {

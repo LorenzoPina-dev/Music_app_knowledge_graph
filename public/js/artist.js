@@ -1,43 +1,12 @@
 document.addEventListener("DOMContentLoaded", async function () {
-    let url = new URL(window.location.href);
+    const idAutore = searchParams.getString("idAutore"),
+          offset = searchParams.getNumber("offset");
 
-    const idAutore = url.searchParams.get('idAutore'),
-          offset = url.searchParams.get('offset');
+    const autore = await api(`spotify/autore/?idAutore=${idAutore}`),
+          album = await api(`spotify/albumAutore/?idAutore=${idAutore}&offset=${offset}`);
 
-    
-    try {
-        /**
-         * {
-         *  followers: { total },
-         *  genres?: []
-         *  name,
-         *  // popularity
-         * }
-         */
-        const autore = await (await fetch(`http://localhost:3000/api/spotify/autore/?idAutore=${idAutore}`)).json(),
-        /**
-         * items: [{name, uri, total_tracks}]
-         * total
-         */
-              album = await (await fetch(`http://localhost:3000/api/spotify/albumAutore/?idAutore=${idAutore}&offset=${offset}`)).json();
-              //dati_personali = await (await fetch(`http://localhost:3000/api/wikidata/`)).json();
-
-        renderData(autore.body, album.body, idAutore);
-    }
-    catch (err) {
-        console.error(err)
-    }
+    renderData(autore.body, album.body, idAutore);
 });
-
-// Nome 	Pippo
-// Followers 331
-// Anno di nascita 	1960
-// Luogo di nascita 	Roma
-// Numero di album 	100
-
-// Genere musical 	Pop
-
-// track 	
 
 function renderData(autore, album, idAutore) {
     const container = document.createElement("div");
@@ -168,9 +137,7 @@ function renderData(autore, album, idAutore) {
         window["test"] = navigate_clone;
 
         document.body.appendChild(navigate);
-
         document.body.appendChild(container);
-
         document.body.appendChild(navigate_clone);
     }
     else {

@@ -1,23 +1,13 @@
 async function GetData(id) {
-    const canzone_spotify = await api(`spotify/canzone?id=${id}`);
-    
-    let idAutore = canzone_spotify.artists.map(a => a.id),
-        nomeAutore = canzone_spotify.artists.map(a => FormatArtistName(a.name)),
-        nomeCanzone = FormatSongName(canzone_spotify.name);
+    const canzone_spotify = await api(`spotify/canzone?id=${id}`),
+          idAutore = canzone_spotify.artists.map(a => a.id),
+          nomeAutore = canzone_spotify.artists.map(a => FormatArtistName(a.name)),
+          nomeCanzone = FormatSongName(canzone_spotify.name);
 
     const featureCanzone = await api(`songFeature?track_name=${encodeURIComponent(canzone_spotify.name)}`);
     console.log(featureCanzone);
+
     const dati = canzone_spotify;
-    // const dati = {
-    //     artist: canzone_spotify.artists.map(a => {return {id:a.id, name:a.name}}),
-    //     nomeCanzone: canzone_spotify.name,
-    //     album: {
-    //         id:canzone_spotify.album.id, 
-    //         name:canzone_spotify.album.name
-    //     },
-    //     durata: canzone_spotify.duration_ms,
-    //     available_markets: canzone_spotify.available_markets
-    // }
 
     let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(idAutore[0])}`),
         codiciArtisti = artisti_str_search.map(p => p.title);
@@ -51,54 +41,14 @@ async function GetData(id) {
     return dati;
 }
 
-
-let codA;
-let nomCanzone;
-
 document.addEventListener("DOMContentLoaded", async function () {
-    const url = new URL(window.location.href),
-          idCanzone = url.searchParams.get('idCanzone');
+    const idCanzone = searchParams.getString("idCanzone"),
+          data = await GetData(idCanzone);
 
-    GetData(idCanzone)
-        .then(data => renderData(data))
+    renderData(data);
 });
 
 function renderData(data) {
-
-    /*
-    data={
-        album:{id: '5x8e8UcCeOgrOzSnDGuPye', name: 'PCD'}
-        artist:[{id: "6wPhSqRtPu1UhRCDX5yaDJ",name: "The Pussycat Dolls"}]
-        available_markets:['CA', 'MX', 'US']
-        durata:225560
-        generi:['contemporary R&B', 'pop music']
-        nomeCanzone:"Buttons"
-        pubblicazione:"2005-09-12T00:00:00Z"
-    }
-    */
-   // const d=data.map(dat=>dat.nomeCanzone.value);
-    console.log(data);
-    
-    //const timeline = document.createElement('table');
-    // data.forEach(el => {
-    //     const tr = document.createElement('tr');
-    //     let td = document.createElement('td');
-
-    //     td.innerHTML = el.artistaLabel.value;
-    //     tr.appendChild(td);
-    //     td = document.createElement('td');
-
-    //     td.innerHTML = el.canzoniLabel.value;
-    //     tr.appendChild(td);
-
-    //     td = document.createElement('td');
-    //     td.innerHTML = el.genereLabel.value;
-    //     tr.appendChild(td);
-    //     timeline.appendChild(tr);
-    // });
-
-   // document.getElementById("timeLine").appendChild(timeline);
-
     const song_name = data.name,
           artists = data.artists,
           album_name = data.album.name,

@@ -9,7 +9,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;  /* Center the table vertically in the viewport */
-    margin: 35px 0 35px 0;  /* Reset default margin */
+    margin: 35px 0 35px 0;
 }
 
 table, tr, td, th {
