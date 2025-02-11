@@ -2,7 +2,7 @@ let map = null,
     markersLayer = null;
 function render_map(view_target, points) {
     if (map === null) {
-        map = L.map('map').setView(view_target, 6);
+        map = L.map("map").setView(view_target, 6);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
     map_overlay.appendChild(map_element);
     map_overlay.appendChild(map_overlay_button);
     document.body.appendChild(map_overlay);
+
+    
 });
 
 let map_is_visible = false;

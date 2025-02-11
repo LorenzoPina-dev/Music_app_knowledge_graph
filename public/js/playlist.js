@@ -26,9 +26,25 @@ document.addEventListener("DOMContentLoaded", async function () {
           idPlaylist = searchParams.getString("idPlaylist"),
           useSpotify = urlSpotify.length !== 0;
 
+    console.log(useSpotify)
+
+    const map_toggle = document.getElementById("map-toggle");
+
+    if (map_toggle !== null) {
+        map_toggle.onmouseup = e => {
+            if (e.button === 0) {
+                toggle_map_overlay()
+                if (map_is_visible && map === null)
+                    render_map([41.9028, 12.4964], [{lat:41.9028, lng:12.4964, name:"DAJE ROMA DAJE"}]);
+            }
+        }
+    }
+
     if (useSpotify) {
-        const idSpotify = useSpotify ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify,
-                data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
+        const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify,
+              data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
+
+        console.log(idSpotify)
 
         renderData(sistemaDati(data));
     }

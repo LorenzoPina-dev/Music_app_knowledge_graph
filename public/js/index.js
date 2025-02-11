@@ -19,7 +19,8 @@ function createForm(action, param, placeholder, button_text) {
     form.method = "get";
 
     text.type = "text";
-    text.id = param;
+    text.autocomplete = "off";
+    text.autocapitalize = "off";
     text.name = param;
     text.placeholder = placeholder;
 
@@ -29,6 +30,19 @@ function createForm(action, param, placeholder, button_text) {
     form.appendChild(text);
     form.appendChild(button);
 
+
+    text.oninput = _ => {
+        const current_input = text.value;
+        if (current_input.includes("http") || /^[A-Za-z0-9]{22}$/.test(current_input)) {
+            form.action = "/playlist.html";
+            text.name = "idSpotify";
+        }
+        else {
+            form.action = "";
+            text.name = "filtro";
+        }
+    }
+
     return form;
 }
 
@@ -37,13 +51,12 @@ function renderData(arr, filtro, offset, numPlaylistPagina, totalePlaylist) {
           h1 = document.createElement("h1");
     container.id = "container";
     h1.textContent = "Playlists";
-    
 
     const div_form = document.createElement("div"),
-          spotify_form = createForm("/playlist.html", "idSpotify", "link/id spotify", "usa"),
-          internal_form = createForm("", "filtro", "nome playlist locale", "&#128269;");
+          form = createForm("", "", "playlist name/link/id spotify", "cerca");
 
-    div_form.append(spotify_form, internal_form);
+    div_form.classList.add("form");
+    div_form.append(form);
     document.body.prepend(h1, div_form);
 
     for (let i = 0; i < Math.min(arr.length,numPlaylistPagina); i++) {
@@ -105,4 +118,3 @@ function renderData(arr, filtro, offset, numPlaylistPagina, totalePlaylist) {
         document.body.appendChild(container);
     }
 }
-
