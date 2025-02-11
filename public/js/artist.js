@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     
     let informazioni_wikidata = {};
     if(info_artista.length ===0)
-        info_artista = null;
+        informazioni_wikidata = null;
     else{
         informazioni_wikidata.artista=info_artista[0].artista.value;
         let coord=info_artista[0].coord.value;
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         informazioni_wikidata.coord={lat:info_coord[1],lng:info_coord[0]};
         informazioni_wikidata.origin=info_artista[0].originLabel.value;
         informazioni_wikidata.startWork=info_artista[0].startWork.value;
-        informazioni_wikidata.premi=[... new Set(info_artista.map(i=>i.premiLabel.value))];
+        informazioni_wikidata.premi=[... new Set(info_artista.filter(i=>i.premiLabel!==undefined).map(i=>i.premiLabel.value))];
         console.log(informazioni_wikidata);
     }
     renderData(informazioni_wikidata,autore.body, album.body, idAutore);
@@ -110,7 +110,7 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
         td.innerText="Inizio cariera: "+formatDate(informazioni_wikidata.startWork);
         tr.appendChild(td);
         overview_table.appendChild(tr);
-        const premi_count=informazioni_wikidata.premi.length;
+        const premi_count=informazioni_wikidata.premi?.length;
         if(premi_count>0)
         {
             tr = document.createElement("tr"),
