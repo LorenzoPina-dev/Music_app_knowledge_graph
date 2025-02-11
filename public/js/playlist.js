@@ -27,31 +27,64 @@ document.addEventListener("DOMContentLoaded", async function () {
           useSpotify = urlSpotify.length !== 0;
 
     console.log(useSpotify)
+    let data=null;
+    if (useSpotify) {
+        const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify;
+        data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
+        data=sistemaDati(data);
+        renderData(data);
+    }
+    else {
+        data = await api(`getPlaylist?idPlaylist=${idPlaylist}`);
+        renderData(data);
+    }
 
     const map_toggle = document.getElementById("map-toggle");
 
     if (map_toggle !== null) {
+        let songs = data.tracks;
+        let coordinate=[];
+        Promise.all(songs.map(async s => {
+            const id_autore=s.artist_uri.slice("spotify:artist:".length),
+                  nome_autore=s.artist_name;
+            let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(id_autore)}`),
+            codiciArtisti = artisti_str_search.map(p => p.title),
+            info_artista ={};
+            if (codiciArtisti.length === 0) {
+                artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(nome_autore)}`),
+                codiciArtisti = artisti_str_search.map(p => p.title);
+                info_artista = (await post_api(
+                    'wikidata/artista', 
+                    { codiciArtisti,limit:1 }
+                ));
+                
+            }
+            else{
+                info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(id_autore)}&limit=1`);
+            }
+            
+            let informazioni_wikidata = {};
+            if(info_artista.length ===0)
+                informazioni_wikidata = null;
+            else{
+                informazioni_wikidata.artista=info_artista[0].artista.value;
+                let coord=info_artista[0].coord.value;
+                let info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
+                const linkMap=`<a href="/artist.html?idAutore=${id_autore}">${nome_autore}</a>`;
+                coordinate.push({lat:info_coord[1],lng:info_coord[0],name:linkMap});
+            }
+
+    })).then(()=>{
+        
         map_toggle.onmouseup = e => {
             if (e.button === 0) {
                 toggle_map_overlay()
                 if (map_is_visible && map === null)
-                    render_map([41.9028, 12.4964], [{lat:41.9028, lng:12.4964, name:"DAJE ROMA DAJE"}]);
+                    render_map([41.9028, 12.4964], coordinate,2);
             }
         }
-    }
-
-    if (useSpotify) {
-        const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify,
-              data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
-
-        console.log(idSpotify)
-
-        renderData(sistemaDati(data));
-    }
-    else {
-        const data = await api(`getPlaylist?idPlaylist=${idPlaylist}`);
-
-        renderData(data);
+        console.log("finito");
+    })
     }
 });
 
@@ -61,8 +94,7 @@ function renderData(playlist) {
     let songs = playlist.tracks;
     Promise.all(songs.map(async e => {
         const artista = e.artist_uri.split(":")[2],
-              nomeArtista = FormatArtistName(e.artist_name),
-              nomeCanzone = FormatSongName(e.track_name);
+              nomeArtista = FormatArtistName(e.artist_name);
 
         const ris = await api(`songFeature?track_name=${encodeURIComponent(e.track_name)}`);
         if (ris.status === 400) {

@@ -43,8 +43,9 @@ router.get('/song', async (req, res) => {
 
 router.post('/artista', async (req, res) => {
     const codiciArtisti = req.body.codiciArtisti;
+    const limit = req.body.limit??100;
     try {
-        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByCodiciWikidata(codiciArtisti)) }&format=json`,
+        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByCodiciWikidata(codiciArtisti,limit)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings)
     }
@@ -55,9 +56,9 @@ router.post('/artista', async (req, res) => {
 
 router.get('/artista', async (req, res) => {
     const idSpotify = req.query.idSpotify;
-
+    const limit = req.query.limit??100;
     try {
-        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByIdSpotify(idSpotify)) }&format=json`,
+        const url = `/sparql?query=${ encodeURIComponent(getInfoArtistaByIdSpotify(idSpotify,limit)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings)
     }

@@ -31,7 +31,7 @@ const getElement=(string)=>`https://www.wikidata.org/w/api.php?action=query&list
 
 
 
-const getInfoArtistaByIdSpotify = codiceArtista =>
+const getInfoArtistaByIdSpotify = (codiceArtista,limit) =>
     `select distinct ?artista ?image ?startWork ?originLabel ?coord ?premi ?premiLabel where {
         ?artista wdt:P1902 "${codiceArtista}";
         optional{
@@ -62,9 +62,10 @@ const getInfoArtistaByIdSpotify = codiceArtista =>
             ?premi rdfs:label ?premiLabel.
             FILTER(lang(?premiLabel) = "en").
         }
-    }`;
+    }
+    LIMIT ${limit}`;
     
-const getInfoArtistaByCodiciWikidata = codiciArtista =>
+const getInfoArtistaByCodiciWikidata =  (codiceArtista,limit) =>
     `select distinct ?artista ?image ?startWork ?originLabel ?coord ?premi ?premiLabel where {
         VALUES ?artista { ${codiciArtista.map(q => `wd:${q}`).join(" ")} }.
         optional{
@@ -95,7 +96,8 @@ const getInfoArtistaByCodiciWikidata = codiciArtista =>
             ?premi rdfs:label ?premiLabel.
             FILTER(lang(?premiLabel) = "en").
         }
-    }`;
+    }
+    LIMIT ${limit}`;
 
 /*`
 select distinct ?artista ?image ?startWork ?coord where {

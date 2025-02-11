@@ -1,8 +1,8 @@
 let map = null,
     markersLayer = null;
-function render_map(view_target, points) {
+function render_map(view_target, points,zoom=6) {
     if (map === null) {
-        map = L.map("map").setView(view_target, 6);
+        map = L.map("map").setView(view_target, zoom);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
