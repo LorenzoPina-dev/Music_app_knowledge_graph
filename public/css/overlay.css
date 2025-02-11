@@ -60,7 +60,6 @@
 }
 
 #timeline-toggle {
-    display: block;
     top: 35%;
     background-image: url("../icons/timeline_icon.png");
 }

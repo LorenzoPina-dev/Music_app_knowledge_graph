@@ -26,11 +26,12 @@ document.addEventListener("DOMContentLoaded", async function () {
           idPlaylist = searchParams.getString("idPlaylist"),
           useSpotify = urlSpotify.length !== 0;
 
-    let data=null;
+    let data, og_data;
     if (useSpotify) {
         const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify;
-        data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
-        data=sistemaDati(data);
+        og_data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
+        console.log(og_data);
+        data = sistemaDati(og_data);
         renderData(data);
     }
     else {
@@ -44,19 +45,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         Promise.all(songs.map(async s => {
             const id_autore=s.artist_uri.slice("spotify:artist:".length),
                   nome_autore=s.artist_name;
-            let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(id_autore)}`),
-            codiciArtisti = artisti_str_search.map(p => p.title),
-            info_artista ={};
-            if (codiciArtisti.length === 0) {
+            let info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(id_autore)}&limit=1`);
+            if (info_artista.length === 0) {
                 artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(nome_autore)}`),
                 codiciArtisti = artisti_str_search.map(p => p.title);
                 info_artista = (await post_api(
                     'wikidata/artista', 
                     { codiciArtisti,limit:1 }
                 ));
-            }
-            else{
-                info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(id_autore)}&limit=1`);
             }
             
             let informazioni_wikidata = {};
@@ -88,10 +84,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         timeline_icon.onmouseup = e => {
             if (e.button === 0) {
                 if (timeline === null)
-                    render_timeline("titolo","sottotitolo",
-                        [{quasinome:"nome1",quando:135},{quasinome:"nome2",quando:3},{quasinome:"nome3",quando:-1},{quasinome:"nome4",quando:50}],
-                        (a,b) => a.quando - b.quando,
-                        v => { return { name:v.quasinome, description:`successo nel ${v.quando}.` } })
+                    render_timeline(og_data.name,`playlist da ${og_data.tracks.length} pezzi musicali.`,
+                        og_data.tracks,//[{quasinome:"nome1",quando:135},{quasinome:"nome2",quando:3},{quasinome:"nome3",quando:-1},{quasinome:"nome4",quando:50}],
+                        (t1,t2) => new Date(t1.album.release_date).getTime() - new Date(t2.album.release_date).getTime(),
+                        v => { return { name:`${v.name}`, description:`${v.album.release_date}` } })
                 else
                     toggle_timeline_overlay();
             }
