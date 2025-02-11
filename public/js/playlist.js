@@ -87,7 +87,12 @@ document.addEventListener("DOMContentLoaded", async function () {
                     render_timeline(og_data.name,`playlist da ${og_data.tracks.length} pezzi musicali.`,
                         og_data.tracks,//[{quasinome:"nome1",quando:135},{quasinome:"nome2",quando:3},{quasinome:"nome3",quando:-1},{quasinome:"nome4",quando:50}],
                         (t1,t2) => new Date(t1.album.release_date).getTime() - new Date(t2.album.release_date).getTime(),
-                        v => { return { name:`${v.name}`, description:`${v.album.release_date}` } })
+                        v => { return { x: new Date(v.album.release_date), artist_name:v.artists[0].name, track_name:v.name, album_name:v.album.name, name:v.album.release_date } },
+                        function() {
+                            return `<p>${this.point.track_name}</p><br>` +
+                                    `<p>${this.point.artist_name}</p><br>` +
+                                    `<p>${this.point.album_name}</p><br>`;
+                        });
                 else
                     toggle_timeline_overlay();
             }

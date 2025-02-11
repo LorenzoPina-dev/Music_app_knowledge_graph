@@ -79,11 +79,13 @@ document.addEventListener("DOMContentLoaded", () => {
 let map_is_visible = false;
 function toggle_map_overlay() {
     if (map_is_visible) {
+        document.body.classList.remove("noscroll");
         setTimeout(map.invalidateSize, 300);
         map_overlay.style.display = "none";
         map_overlay.style.pointerEvents = "none";
     }
-    else {
+    else if (!timeline_is_visible) {
+        document.body.classList.add("noscroll");
         map_overlay.style.display = "flex";
         map_overlay.style.pointerEvents = "all";
     }
@@ -93,11 +95,13 @@ function toggle_map_overlay() {
 let timeline_is_visible = false;
 function toggle_timeline_overlay() {
     if (timeline_is_visible) {
+        document.body.classList.remove("noscroll");
         setTimeout(timeline.reflow, 300);
         timeline_overlay.style.display = "none";
         timeline_overlay.style.pointerEvents = "none";
     }
-    else {
+    else if (!map_is_visible) {
+        document.body.classList.add("noscroll");
         timeline_overlay.style.display = "flex";
         timeline_overlay.style.pointerEvents = "all";
     }
@@ -105,19 +109,41 @@ function toggle_timeline_overlay() {
 }
 
 let timeline = null;
-function render_timeline(title, subtitle, points, sort_function, map_function) {
+function render_timeline(title, subtitle, points, sort_function, map_function, formatter) {
     if (!timeline_is_visible)
         toggle_timeline_overlay();
 
     timeline = Highcharts.chart('timeline', {
         chart: {
-            type: 'timeline'
+            type: 'timeline',
+            zooming: {
+                type: 'x',
+                mouseWheel: true
+            }
+        },
+        tooltip: {
+            useHTML: true,
+            formatter: formatter
         },
         xAxis: {
-            visible: false
+            type: 'datetime',
+            labels: {
+                staggerLines: 2
+            }
         },
         yAxis: {
             visible: false
+        },
+        accessibility:{
+            highContrastMode:"auto",
+        },
+        plotOptions: {
+            series: {
+                dataLabels: {
+                    //allowOverlap: false,
+                    enabled: false
+                }
+            }
         },
         title: {
             text: title
@@ -125,14 +151,6 @@ function render_timeline(title, subtitle, points, sort_function, map_function) {
         subtitle: {
             text: subtitle
         },
-        colors: [
-            '#4185F3',
-            '#427CDD',
-            '#406AB2',
-            '#3E5A8E',
-            '#3B4A68',
-            '#363C46'
-        ],
         series: [{
             data: points.sort(sort_function).map(map_function)
         }]

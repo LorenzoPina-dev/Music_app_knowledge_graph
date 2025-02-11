@@ -46,7 +46,7 @@
     transform: translate(-50%,-50%);
     transition: all 0.15s;
     display: none;
-    left: 3%;
+    left: 2.5%;
 }
 
 .toggle:hover {
@@ -62,4 +62,8 @@
 #timeline-toggle {
     top: 35%;
     background-image: url("../icons/timeline_icon.png");
+}
+
+body.noscroll {
+    overflow: hidden;
 }
