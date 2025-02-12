@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
     
-    new Promise(async(resolve, reject) => {
+    new Promise(async(resolve, _) => {
         let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.id)}`),
         codiciArtisti = artisti_str_search.map(p => p.title);
         if (codiciArtisti.length === 0) {

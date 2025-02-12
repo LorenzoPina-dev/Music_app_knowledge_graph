@@ -68,24 +68,11 @@ router.get('/autore', async (req, res) => {
 
 router.get('/playlist', async (req, res) => {
     const playlistId = req.query.idPlaylist;
-    //console.log(playlistId);
-
     try {
-        const data = await spotifyApi.getPlaylistTracks(playlistId);
-
-        const tracks = data.body.items.map(item => ({
-            name: item.track.name,
-            artists: item.track.artists.map(artist => artist.id),
-            album: item.track.album.name,
-            release_date: item.track.album.release_date,
-            duration_ms: item.track.duration_ms,
-            popularity: item.track.popularity,
-            spotify_url: item.track.external_urls.spotify,
-            preview_url: item.track.preview_url,
-            image: item.track.album.images.length > 0 ? item.track.album.images[0].url : null,
-        }));
-
-        res.json(tracks);
+        const data = await spotifyApi.getPlaylist( playlistId);
+        let {name,images,tracks,..._}=data.body;
+        const playlist={name:name,images:images,tracks:tracks.items.map(i=>i.track)};
+        res.json(playlist);
     }
     catch (err) {
         res.status(500).json({ error: err.message });
@@ -130,11 +117,8 @@ router.get('/canzoni', async (req, res) => {
               chunks = chunkArray(ids, 100);
         let tracks = [];
 
-        console.log(ids.length,chunks.length)
-
         for (let i=0; i<chunks.length; i++) {
             const v = await spotifyApi.getTracks(chunks[i]);
-            console.log(v)
             tracks = [...tracks, ...(await spotifyApi.getTracks(chunks[i])).body.tracks];
         }
 
@@ -144,7 +128,7 @@ router.get('/canzoni', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
+/*
 router.get('/Fsongs', async (req,res) => {
     const canzoneId = req.query.id;
 
@@ -155,7 +139,7 @@ router.get('/Fsongs', async (req,res) => {
     catch (err) {
         res.status(500).json({ error: err.message });
     }
-});
+});*/
 
 
 module.exports = router;

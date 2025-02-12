@@ -1,5 +1,6 @@
 let songs;
-function sistemaDati(data) {
+/*function sistemaDati(data) {
+    console.log(data);
     const ris = { 
         name: data.name,
         tracks: data.tracks.map(item => {
@@ -19,7 +20,7 @@ function sistemaDati(data) {
     };
 
     return ris;
-}
+}*/
 
 document.addEventListener("DOMContentLoaded", async function () {
     const urlSpotify = searchParams.getString("idSpotify"),
@@ -30,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (useSpotify) {
         const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify;
         data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
-        data = sistemaDati(data);
+       // data = sistemaDati(data);
         renderData(data);
     }
     else {
@@ -123,6 +124,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 function renderData(playlist) {
+    console.log(playlist);
     let i = 0;
     let title = playlist.name;
     let songs = playlist.tracks;

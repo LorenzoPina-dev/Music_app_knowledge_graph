@@ -1,35 +1,4 @@
-const getQueryCanzoniMusicista = (codiceMusicista, ancheAlbum=true) => `
-SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
-    ?artista wdt:P1902 "${codiceMusicista}".
-    # ?canzoni rdfs:label "Unwell"@en.
-    ?canzoni wdt:P175 ?artista ;
-             wdt:P136 ?genere ;
-             wdt:P577 ?pubblicazione ;
-             wdt:P31 ?in.
-    ?in rdfs:label ?instanza.
-  
-    ${ ancheAlbum ?
-        `OPTIONAL {
-            #DA TOGLIERE SE NON DEVO DARE GLI ALBUM
-            ?canzoni wdt:P31 wd:Q482994 ;
-                     rdfs:label ?album. 
-        }` :
-        ""
-    }
-    OPTIONAL {
-        ?canzoni wdt:P31 wd:Q134556 ;
-                 wdt:P361 ?a. 
-        ?a rdfs:label ?album. 
-    }
-
-    # Filtra i titoli in inglese
-    FILTER (lang(?album) = "en")
-    FILTER (lang(?instanza) = "en")
-}`;
-
 const getElement=(string)=>`https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${string}&format=json&srlimit=50`;
-
-
 
 const getInfoArtistaByIdSpotify = (codiceArtista,limit) =>
     `select distinct ?artista ?image ?startWork ?originLabel ?coord ?premi ?premiLabel where {
@@ -99,6 +68,67 @@ const getInfoArtistaByCodiciWikidata =  (codiceArtista,limit) =>
     }
     LIMIT ${limit}`;
 
+    
+const findSongByCodiciArtistAndSongName=(codiciArtisti,nomeCanzone="")=>`
+SELECT DISTINCT  ?artista  ?canzoni  WHERE {
+    values ?artista {${codiciArtisti.map(q => `wd:${q}`).join(" ")}}.
+    {
+        ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
+    }
+    UNION{
+            ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista;
+    }
+    ?canzoni rdfs:label ?canzoniLabel.
+    ${nomeCanzone===""?"":`FILTER(REGEX(?canzoniLabel, "${nomeCanzone}", "i") || REGEX("${nomeCanzone}", ?canzoniLabel, "i")).`}
+}limit 100
+`;
+
+//const getInfoCanzoniById
+const getInfoCanzoneByLabels=(idCanzoni,limit=100,all=true)=>`
+SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ${all?`?artista ?artistaLabel ?genere ?genereLabel ?album ?albumLabel`:""} WHERE {
+    VALUES ?canzoni { ${idCanzoni.map(q => `wd:${q}`).join(" ")} }.
+     {
+        ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
+    }
+    UNION{
+        ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista.
+    } 
+    ?canzoni wdt:P577| wdt:P361/wdt:P577 | wdt:P1433/wdt:P577 ?pubblicazione${all?
+            `wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 ?genere;
+            wdt:P361|wdt:P1433 ?album.`:"."
+    }
+    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+} LIMIT ${limit}`;
+
+
+/*const getQueryCanzoniMusicista = (codiceMusicista, ancheAlbum=true) => `
+SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
+    ?artista wdt:P1902 "${codiceMusicista}".
+    # ?canzoni rdfs:label "Unwell"@en.
+    ?canzoni wdt:P175 ?artista ;
+             wdt:P136 ?genere ;
+             wdt:P577 ?pubblicazione ;
+             wdt:P31 ?in.
+    ?in rdfs:label ?instanza.
+  
+    ${ ancheAlbum ?
+        `OPTIONAL {
+            #DA TOGLIERE SE NON DEVO DARE GLI ALBUM
+            ?canzoni wdt:P31 wd:Q482994 ;
+                     rdfs:label ?album. 
+        }` :
+        ""
+    }
+    OPTIONAL {
+        ?canzoni wdt:P31 wd:Q134556 ;
+                 wdt:P361 ?a. 
+        ?a rdfs:label ?album. 
+    }
+
+    # Filtra i titoli in inglese
+    FILTER (lang(?album) = "en")
+    FILTER (lang(?instanza) = "en")
+}`;*/
 /*`
 select distinct ?artista ?image ?startWork ?coord where {
     ?artista wdt:P1902 "${codiceArtista}";
@@ -112,7 +142,7 @@ select distinct ?artista ?image ?startWork ?coord where {
          # dbo:birthPlace ?birtPlace.
          # ?birtPlace georss:point ?coord.
 } LIMIT 100`*/
-
+/*
 const getQueryCanzone = (codiceMusicista, nomeCanzone) => `
 SELECT distinct ?canzoni ?artistaNome ?artista ?genere ?nomeGenere ?pubblicazione ?oggalbum ?album WHERE {
     ?artista wdt:P1902 "${codiceMusicista}";
@@ -156,7 +186,7 @@ SELECT distinct ?canzoni ?artistaNome ?artista ?genere ?nomeGenere ?pubblicazion
     }
 } LIMIT 100
 `;
-
+/*
 const getQueryCanzoniFatteDaId = (artists, nomeCanzone=undefined) => `
 SELECT distinct ?nomeCanzone ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazione ?oggalbum ?album WHERE {
 
@@ -253,37 +283,7 @@ SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazi
 } LIMIT 100`;*/
 
 
-const findSongByCodiciArtistAndSongName=(codiciArtisti,nomeCanzone="")=>`
-SELECT DISTINCT  ?artista  ?canzoni  WHERE {
-    values ?artista {${codiciArtisti.map(q => `wd:${q}`).join(" ")}}.
-    {
-        ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
-    }
-    UNION{
-            ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista;
-    }
-    ?canzoni rdfs:label ?canzoniLabel.
-    ${nomeCanzone===""?"":`FILTER(REGEX(?canzoniLabel, "${nomeCanzone}", "i") || REGEX("${nomeCanzone}", ?canzoniLabel, "i")).`}
-}limit 100
-`;
-
-//const getInfoCanzoniById
-const getInfoCanzoneByLabels=(idCanzoni,limit=100,all=true)=>`
-SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ${all?`?artista ?artistaLabel ?genere ?genereLabel ?album ?albumLabel`:""} WHERE {
-    VALUES ?canzoni { ${idCanzoni.map(q => `wd:${q}`).join(" ")} }.
-     {
-        ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
-    }
-    UNION{
-        ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista.
-    } 
-    ?canzoni wdt:P577| wdt:P361/wdt:P577 | wdt:P1433/wdt:P577 ?pubblicazione${all?
-            `wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 ?genere;
-            wdt:P361|wdt:P1433 ?album.`:"."
-    }
-    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-} LIMIT ${limit}`;
-
+/*
 const getPubblicazioneAlbum=(codiciAlbum)=>
     `SELECT distinct ?codice ?dataPubblicazione WHERE {
         values ?album {${codiciAlbum.map(q => `wd:${q}`).join(" ")}}.
@@ -293,5 +293,6 @@ const getPubblicazioneAlbum=(codiciAlbum)=>
          }
       }
     `;
-
-module.exports = {getPubblicazioneAlbum,getQueryCanzoniMusicista,getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName};
+*/
+//module.exports = {getPubblicazioneAlbum,getQueryCanzoniMusicista,getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName};
+module.exports ={getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getElement,getInfoCanzoneByLabels,findSongByCodiciArtistAndSongName};

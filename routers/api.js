@@ -2,7 +2,7 @@ const express = require("express"),
       fs=require("fs");
 const 
       router = express.Router(),
-      { getSongs, getListPlaylists, getPlaylistDyId,getNames } = require('./../utils/LeggiFile.js'),
+      { getSongs, getPlaylistDyId/*,getNames,getListPlaylists*/ } = require('./../utils/LeggiFile.js'),
       datasetSongs = getSongs(),
       playlists=JSON.parse(fs.readFileSync("nomiPlaylist.json"));
 
@@ -13,16 +13,6 @@ router.get('/numeroPlaylist', (_, res) => {
 });
 
 
-router.get('/song', (req, res) => {
-    const idPlaylist = Number(req.query.idPlaylist);
-    const idCanzone = Number(req.query.idCanzone);
-    const filePlaylist=getPlaylistDyId(idPlaylist);
-    const playlist=filePlaylist.filter(playlist =>playlist.pid===idPlaylist);
-    if(playlist.length===0) return res.status(404).json({error: "Playlist non trovata"});
-    let canzone=playlist[0].tracks.filter(c=>c.pos===idCanzone);
-    if(canzone.length===0) return res.status(404).json({error: "Canzone non trovata"});
-    res.json(canzone[0]);
-});
 
 router.get('/getNplaylist', (req, res) => {
     let filtro = req.query.filtro,
@@ -68,24 +58,6 @@ router.get('/getNplaylist', (req, res) => {
     res.json(playlist);
 });
 
-router.get('/getAutoriInPlaylist', (req, res) => {
-    let idPlaylist = req.query.idPlaylist;
-    if (idPlaylist === undefined) {
-        res.status(400).send("Mancante l'id della playlist");
-        return;
-    }
-    idPlaylist = Number(idPlaylist);
-
-    const playlist = playlists.filter(playlist => playlist.pid === idPlaylist)[0];
-    if (playlist === undefined) {
-        res.sendStatus(400);
-        return;
-    }
-
-    const autori = playlist.tracks.map(track => track.artist_name);
-    res.json([...new Set(autori)]);
-});
-
 
 router.get('/songFeature', (req, res) => {
     const track_name = req.query.track_name.toLocaleLowerCase();
@@ -102,10 +74,40 @@ router.get('/songFeature', (req, res) => {
     
     res.json(song[0]);
 });
-
+/*
 router.get('/songs', (_, res) => {
     res.json(datasetSongs);
 });
+/*
+router.get('/getAutoriInPlaylist', (req, res) => {
+    let idPlaylist = req.query.idPlaylist;
+    if (idPlaylist === undefined) {
+        res.status(400).send("Mancante l'id della playlist");
+        return;
+    }
+    idPlaylist = Number(idPlaylist);
+
+    const playlist = playlists.filter(playlist => playlist.pid === idPlaylist)[0];
+    if (playlist === undefined) {
+        res.sendStatus(400);
+        return;
+    }
+
+    const autori = playlist.tracks.map(track => track.artist_name);
+    res.json([...new Set(autori)]);
+});*/
+
+/*
+router.get('/song', (req, res) => {
+    const idPlaylist = Number(req.query.idPlaylist);
+    const idCanzone = Number(req.query.idCanzone);
+    const filePlaylist=getPlaylistDyId(idPlaylist);
+    const playlist=filePlaylist.filter(playlist =>playlist.pid===idPlaylist);
+    if(playlist.length===0) return res.status(404).json({error: "Playlist non trovata"});
+    let canzone=playlist[0].tracks.filter(c=>c.pos===idCanzone);
+    if(canzone.length===0) return res.status(404).json({error: "Canzone non trovata"});
+    res.json(canzone[0]);
+});*/
 
 // Esporta il router
 module.exports = router;
