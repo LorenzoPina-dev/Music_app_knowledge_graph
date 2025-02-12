@@ -149,8 +149,8 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
             button = document.createElement("button");
         button.textContent = informazioni_wikidata.origin;
         button.onclick = () => {
-            let lat=Number(informazioni_wikidata.coord.lat),
-                lng=Number(informazioni_wikidata.coord.lng);
+            let lat = Number(informazioni_wikidata.coord.lat),
+                lng = Number(informazioni_wikidata.coord.lng);
             console.log([lat, lng]);
             render_map([lat, lng],[{lat, lng,name:name}], 11);
         };
@@ -159,12 +159,11 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
         overview_table.appendChild(tr);
         tr = document.createElement("tr"),
         td = document.createElement("td");
-        td.innerText="Inizio cariera: "+formatDate(informazioni_wikidata.startWork);
+        td.innerText = `Inizio carriera: ${formatDate(informazioni_wikidata.startWork)}`;
         tr.appendChild(td);
         overview_table.appendChild(tr);
-        const premi_count=informazioni_wikidata.premi?.length;
-        if(premi_count>0)
-        {
+        const premi_count = informazioni_wikidata.premi?.length;
+        if (premi_count > 0) {
             tr = document.createElement("tr"),
             td = document.createElement("td");
             tr.classList.add("lista");

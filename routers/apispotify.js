@@ -116,11 +116,28 @@ router.get('/canzone', async (req, res) => {
     }
 });
 
+function chunkArray(array, L) {
+    return Array.from({ length: Math.ceil(array.length / L) }, (_, i) =>
+        array.slice(i * L, i * L + L)
+    );
+}
+
 router.get('/canzoni', async (req, res) => {
     const idCanzoni = req.query.idCanzoni;
 
     try {
-        const tracks = (await spotifyApi.getTracks(idCanzoni.split(","))).body;
+        const ids = idCanzoni.split(","),
+              chunks = chunkArray(ids, 100);
+        let tracks = [];
+
+        console.log(ids.length,chunks.length)
+
+        for (let i=0; i<chunks.length; i++) {
+            const v = await spotifyApi.getTracks(chunks[i]);
+            console.log(v)
+            tracks = [...tracks, ...(await spotifyApi.getTracks(chunks[i])).body.tracks];
+        }
+
         res.json(tracks);
     }
     catch (err) {

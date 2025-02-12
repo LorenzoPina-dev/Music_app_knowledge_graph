@@ -31,6 +31,8 @@
     border: 1px solid var(--highlight-text);
     color: var(--highlight-text);
     transition: all 0.25s;
+    padding: 0;
+    text-align: center;
 }
 
 .overlay button:hover {

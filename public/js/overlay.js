@@ -80,11 +80,11 @@ let map_is_visible = false;
 function toggle_map_overlay() {
     if (map_is_visible) {
         document.body.classList.remove("noscroll");
-        setTimeout(map.invalidateSize, 300);
         map_overlay.style.display = "none";
         map_overlay.style.pointerEvents = "none";
     }
     else if (!timeline_is_visible) {
+        if (map !== null) setTimeout(map.invalidateSize, 300);
         document.body.classList.add("noscroll");
         map_overlay.style.display = "flex";
         map_overlay.style.pointerEvents = "all";
@@ -96,11 +96,11 @@ let timeline_is_visible = false;
 function toggle_timeline_overlay() {
     if (timeline_is_visible) {
         document.body.classList.remove("noscroll");
-        setTimeout(timeline.reflow, 300);
         timeline_overlay.style.display = "none";
         timeline_overlay.style.pointerEvents = "none";
     }
     else if (!map_is_visible) {
+        if (timeline !== null) setTimeout(timeline.reflow, 300);
         document.body.classList.add("noscroll");
         timeline_overlay.style.display = "flex";
         timeline_overlay.style.pointerEvents = "all";
