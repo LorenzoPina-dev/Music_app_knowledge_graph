@@ -1,4 +1,4 @@
-html, body {
+html {
     height: inherit;
     margin: 0;
 }
@@ -9,7 +9,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     flex-direction: column;
     margin: 35px 0 35px 0;  /* Reset default margin */
 }

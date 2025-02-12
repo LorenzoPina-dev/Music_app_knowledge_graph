@@ -189,11 +189,3 @@ body > img {
 .navigate div:not(.blocked):hover {
     background-color: var(--even);
 }
-
-#map-toggle {
-    display: none;
-}
-
-#timeline-toggle {
-    top: 50% !important;
-}

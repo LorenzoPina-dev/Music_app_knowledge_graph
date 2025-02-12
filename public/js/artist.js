@@ -19,14 +19,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
     else info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(idAutore)}`);
 
-    let informazioni_wikidata = {};
+    let wikidata = {};
     if (info_artista.length === 0)
-        informazioni_wikidata = null;
+        wikidata = null;
     else{
         const coord = info_artista.filter(a => a.artista !== undefined)[0]?.coord.value,
               info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
         
-        informazioni_wikidata = {
+        wikidata = {
             artista: info_artista.filter(a => a.artista !== undefined)[0]?.artista.value,
             coord: { lat:info_coord[1], lng:info_coord[0] },
             origin: info_artista.filter(a => a.originLabel !== undefined)[0]?.originLabel.value,
@@ -76,10 +76,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         timeline_icon.onmouseup = e => {
             if (e.button === 0) {
                 if (timeline === null)
-                    render_timeline("Pubblicazioni","tutte le pubblicazioni di canzoni e album su wikidata",
+                    render_timeline("Pubblicazioni",`data riguardanti ${data.length} pubblicazioni.`,
                         data,
                         (a,b) => a.pubblicazione - b.pubblicazione,
-                        v => { return { x: v.pubblicazione, name:v.nome, description:`successo nel ${formatDate(v.pubblicazione)}.` } },
+                        v => { return { x: v.pubblicazione, name:v.nome, description:formatDate(v.pubblicazione) } },
                         undefined,
                         true)
 
@@ -89,10 +89,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
         console.log("finito timeline");
     });
-    renderData(informazioni_wikidata,autore.body, album.body, idAutore);
+    renderData(wikidata,autore.body, album.body, idAutore);
 });
 
-function renderData(informazioni_wikidata,autore, album, idAutore) {
+function renderData(wikidata,autore, album, idAutore) {
     const container = document.createElement("div");
     container.id = "container";
 
@@ -110,8 +110,8 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
           th_name = document.createElement("th"),
           tr_followers = document.createElement("tr"),
           td_followers = document.createElement("td"),
-          tr_album_count = document.createElement("tr"),
-          td_album_count = document.createElement("td");
+          tr_result_count = document.createElement("tr"),
+          td_result_count = document.createElement("td");
 
     overview_table.classList.add("overview");
 
@@ -131,7 +131,7 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
         document.documentElement.style.setProperty('--genre-count', max_col_span.toString());
         th_name.colSpan = max_col_span;
         td_followers.colSpan = max_col_span;
-        td_album_count.colSpan = max_col_span;
+        td_result_count.colSpan = max_col_span;
     }
 
     if (genre_count > 0) {
@@ -147,49 +147,56 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
         tr.appendChild(td);
         overview_table.appendChild(tr);
     }
-    if (informazioni_wikidata !== null) {
-        let tr = document.createElement("tr"),
-            td = document.createElement("td"),
-            button = document.createElement("button");
-        button.textContent = informazioni_wikidata.origin;
-        button.onclick = () => {
-            let lat = Number(informazioni_wikidata.coord.lat),
-                lng = Number(informazioni_wikidata.coord.lng);
-            console.log([lat, lng]);
-            render_map([lat, lng],[{lat, lng,name:name}], 11);
-        };
-        td.appendChild(button);
-        tr.appendChild(td);
-        overview_table.appendChild(tr);
-        tr = document.createElement("tr"),
-        td = document.createElement("td");
-        td.innerText = `Inizio carriera: ${formatDate(informazioni_wikidata.startWork)}`;
-        tr.appendChild(td);
-        overview_table.appendChild(tr);
-        const premi_count = informazioni_wikidata.premi?.length;
-        if (premi_count > 0) {
-            tr = document.createElement("tr"),
-            td = document.createElement("td");
-            tr.classList.add("lista");
-
-            for (let i=0; i<premi_count; i++) {
-                const a = document.createElement("a");
-                a.textContent = informazioni_wikidata.premi[i];
-                td.appendChild(a);
+    if (wikidata !== null) {
+        if (wikidata.origin !== undefined && wikidata.coord !== undefined) {
+            const lat = Number(wikidata.coord.lat),
+                  lng = Number(wikidata.coord.lng);
+            enable_map_icon();
+            map_icon.onmouseup = e => {
+                if (e.button === 0) {
+                    if (map === null)
+                    render_map([lat, lng], [{lat, lng, name:wikidata.origin}], 11);
+                else
+                    toggle_map_overlay();
+                }
             }
-            tr.appendChild(td);
-            overview_table.appendChild(tr);
+
+            if (wikidata.startWork !== undefined) {
+                const tr = document.createElement("tr"),
+                      td = document.createElement("td");
+                td.innerText = `Inizio carriera: ${formatDate(wikidata.startWork)}`;
+                tr.appendChild(td);
+                overview_table.appendChild(tr);
+            }
+
+            const premi_count = wikidata.premi?.length;
+            if (wikidata.premi !== undefined && premi_count > 0) {
+                const tr = document.createElement("tr"),
+                      td = document.createElement("td");
+                tr.classList.add("lista");
+
+                for (let i=0; i<premi_count; i++) {
+                    const a = document.createElement("a");
+                    a.textContent = wikidata.premi[i];
+                    td.appendChild(a);
+                }
+                tr.appendChild(td);
+                overview_table.appendChild(tr);
+            }
         }
     }
 
-    td_album_count.textContent = `Numero di risultati: ${album_count}`;
-    tr_album_count.appendChild(td_album_count);
-    overview_table.appendChild(tr_album_count);
+    td_result_count.textContent = `Numero di risultati: ${album_count}`;
+    tr_result_count.appendChild(td_result_count);
+    overview_table.appendChild(tr_result_count);
 
     document.body.prepend(overview_table);
 
+    console.log(autore);
+
     const author_img = document.createElement("img");
-    author_img.src = autore.images[1].url;
+    // fallback to various artists image
+    author_img.src = autore.images[1]?.url || "https://i.scdn.co/image/ab676161000051746b134287e3095d2c84b7932a";
     author_img.alt = name;
     document.body.prepend(author_img);
 
