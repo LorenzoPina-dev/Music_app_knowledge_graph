@@ -1,18 +1,18 @@
 const express = require('express'),
       { /*makeRequests, delay,*/ creaOption,fetchData} = require("../utils/GestioneRichieste.js"),
-     {getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getElement,getInfoCanzoneByLabels,findSongByCodiciArtistAndSongName}= require("../utils/queryWikiData.js");
-/*{ getPubblicazioneAlbum,
-        getQueryCanzoniMusicista,
-        getInfoArtistaByIdSpotify,
-        getInfoArtistaByCodiciWikidata,
-        getQueryCanzone,
-        getElement, 
-        getInfoCanzoneByLabels,
-        getQueryCanzoniFatteDaId,
-        findSongByCodiciArtistAndSongName
-      } = require("../utils/queryWikiData.js");*/
-router = express.Router(),
-wikydata = "query.wikidata.org";
+      {getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getElement,getInfoCanzoneByLabels,findSongByCodiciArtistAndSongName}= require("../utils/queryWikiData.js"),
+      /*{ getPubblicazioneAlbum,
+              getQueryCanzoniMusicista,
+              getInfoArtistaByIdSpotify,
+              getInfoArtistaByCodiciWikidata,
+              getQueryCanzone,
+              getElement, 
+              getInfoCanzoneByLabels,
+              getQueryCanzoniFatteDaId,
+              findSongByCodiciArtistAndSongName
+            } = require("../utils/queryWikiData.js");*/
+      router = express.Router(),
+      wikydata = "query.wikidata.org";
 
 
 router.post('/artista', async (req, res) => {

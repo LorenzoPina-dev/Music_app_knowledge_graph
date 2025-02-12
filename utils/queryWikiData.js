@@ -85,7 +85,7 @@ SELECT DISTINCT  ?artista  ?canzoni  WHERE {
 
 //const getInfoCanzoniById
 const getInfoCanzoneByLabels=(idCanzoni,limit=100,all=true)=>`
-SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ${all?`?artista ?artistaLabel ?genere ?genereLabel ?album ?albumLabel`:""} WHERE {
+SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ?genere ?genereLabel ${all?`?artista ?artistaLabel  ?album ?albumLabel`:""} WHERE {
     VALUES ?canzoni { ${idCanzoni.map(q => `wd:${q}`).join(" ")} }.
      {
         ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
@@ -93,8 +93,8 @@ SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ${all?`?artista ?artistaL
     UNION{
         ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista.
     } 
-    ?canzoni wdt:P577| wdt:P361/wdt:P577 | wdt:P1433/wdt:P577 ?pubblicazione${all?
-            `wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 ?genere;
+    ?canzoni wdt:P577| wdt:P361/wdt:P577 | wdt:P1433/wdt:P577 ?pubblicazione;
+            wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 ?genere${all?`;
             wdt:P361|wdt:P1433 ?album.`:"."
     }
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
