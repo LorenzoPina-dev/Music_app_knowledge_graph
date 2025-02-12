@@ -22,6 +22,11 @@ let songs;
     return ris;
 }*/
 
+function filter_out_blocked_songs(data) {
+    data.tracks = data.tracks.filter(s => s.name !== "" && s.artists[0].name !== "" && s.album.name !== "");
+    return data;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     const urlSpotify = searchParams.getString("idSpotify"),
           idPlaylist = searchParams.getString("idPlaylist"),
@@ -31,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     if (useSpotify) {
         const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify;
         data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
+        data = filter_out_blocked_songs(data);
        // data = sistemaDati(data);
         renderData(data);
     }
@@ -41,13 +47,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             tracks:await api(`spotify/canzoni?idCanzoni=${song_ids}`),
             name: tdata.name
         };
+        data = filter_out_blocked_songs(data);
+
         renderData(data);
     }
 
     if (map_icon !== null) {
         const songs = data.tracks;
-        let coordUnivoche=new Map();
-        const autoriUnivoci=[...new Map(songs.filter(s => s.artists[0].name !== "" ).map(s=>[s.artists[0].id,s.artists[0]])).values()];
+        let coordUnivoche = new Map();
+        const autoriUnivoci = [...new Map(songs.map(s=>[s.artists[0].id,s.artists[0]])).values()];
         Promise.all(autoriUnivoci.map(async s => {
             const id_autore = s.id,
                   nome_autore = s.name;
@@ -78,12 +86,14 @@ document.addEventListener("DOMContentLoaded", async function () {
                     coordUnivoche.set(chiave,{lat:info_coord[1],lng:info_coord[0],name:linkMap});
             }
         })).then(() => {
-            console.log([ ...coordUnivoche.values()].map(c=>c.name));
-            map_icon.style.display = "block";
+            //console.log([ ...coordUnivoche.values()].map(c=>c.name));
+            if (coordUnivoche.size !== 0)
+                enable_map_icon();
+
             map_icon.onmouseup = e => {
                 if (e.button === 0) {
                     if (map === null)
-                        render_map([41.9028, 12.4964], [ ...coordUnivoche.values()], 2);
+                        render_map([31.042428797166856, 0], [ ...coordUnivoche.values()], 2);
                     else
                         toggle_map_overlay();
                 }
@@ -93,7 +103,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     if (timeline_icon !== null) {
-        timeline_icon.style.display = "block";
+        if (data.tracks.length > 0)
+            enable_timeline_icon();
+
         timeline_icon.onmouseup = e => {
             if (e.button === 0) {
                 if (timeline === null)
@@ -191,7 +203,6 @@ function renderData(playlist) {
     table.prepend(first_tr);
 
     for (let i=0; i<songs.length; i++) {
-        
         const tr = document.createElement("tr"),
               td_song = document.createElement("td"),
               a_song = document.createElement("a"),

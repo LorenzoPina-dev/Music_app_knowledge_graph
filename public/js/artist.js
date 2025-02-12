@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             'wikidata/songById',
             { codiciCanzoni:id_canzoni, all:false }
         ))
-        
+
         console.log(dati_canzoni)
         dati_canzoni = [...new Map(dati_canzoni.filter(v=>!/^[A-Za-z]\d+$/.test(v.canzoniLabel.value)).map(item =>{
             let time=new Date(item.pubblicazione.value).getTime();
@@ -69,16 +69,20 @@ document.addEventListener("DOMContentLoaded", async function () {
         })).values()];
 
         resolve(dati_canzoni);
-    }).then((data)=>{
-        console.log(data);
-        timeline_icon.style.display = "block";
+    }).then(data => {
+        if (data.length > 0)
+            enable_timeline_icon();
+        
         timeline_icon.onmouseup = e => {
             if (e.button === 0) {
                 if (timeline === null)
                     render_timeline("Pubblicazioni","tutte le pubblicazioni di canzoni e album su wikidata",
                         data,
                         (a,b) => a.pubblicazione - b.pubblicazione,
-                        v => { return { name:v.nome, description:`successo nel ${formatDate(v.pubblicazione)}.` } })
+                        v => { return { x: v.pubblicazione, name:v.nome, description:`successo nel ${formatDate(v.pubblicazione)}.` } },
+                        undefined,
+                        true)
+
                 else
                     toggle_timeline_overlay();
             }

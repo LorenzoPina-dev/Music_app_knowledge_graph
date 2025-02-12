@@ -47,13 +47,19 @@
     position: fixed;
     transform: translate(-50%,-50%);
     transition: all 0.15s;
-    display: none;
     left: 2.5%;
+    display: block;
 }
 
 .toggle:hover {
     width: 5.4347%;
     height: 11.2517%;
+}
+
+.toggle.disabled {
+    background-color: rgba(0,0,0,0.5);
+    background-blend-mode: multiply;
+    pointer-events: none;
 }
 
 #map-toggle {
@@ -74,8 +80,14 @@ body.noscroll {
     pointer-events: auto !important;  /* Allow interactions inside the tooltip */
 }
 
+.highcharts-tooltip span {
+    width: 300px !important;
+    overflow: hidden !important;
+    text-align: center !important;
+}
+
 .highcharts-tooltip a {
-    color: #ffcc00 !important; /* Example: Make links more visible */
+    color: black !important; /* Example: Make links more visible */
     text-decoration: underline !important;
     font-weight: bold;
 }

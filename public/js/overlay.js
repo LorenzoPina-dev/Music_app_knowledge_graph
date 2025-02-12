@@ -5,11 +5,23 @@ function render_map(view_target, points, zoom=6) {
         toggle_map_overlay();
 
     if (map === null) {
-        map = L.map("map").setView(view_target, zoom);
+        map = L.map("map", { worldCopyJump: false, minZoom: 2 }).setView(view_target, zoom);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
+            noWrap: true,
+            bounds: [
+                [-90, -180], // Southwest corner
+                [90, 180]    // Northeast corner
+            ],
         }).addTo(map);
+
+        map.setMaxBounds([
+            [-85, -180], // Slightly adjusted bounds to prevent tile glitches
+            [85, 180]
+        ]);
+
+        map.options.maxBoundsViscosity = 1.0; // Prevents dragging beyond maxBounds
 
         markersLayer = L.layerGroup().addTo(map);
     }
@@ -40,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const f = e => e.button === 0 ? toggle_map_overlay() : void 0;
 
     map_icon = document.createElement("div");
-    map_icon.classList.add("toggle");
+    map_icon.classList.add("toggle", "disabled");
     map_icon.id = "map-toggle";
     map_icon.onmouseup = f;
     
@@ -62,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     timeline_element.id = "timeline";
 
     timeline_icon = document.createElement("div");
-    timeline_icon.classList.add("toggle");
+    timeline_icon.classList.add("toggle", "disabled");
     timeline_icon.id = "timeline-toggle";
     timeline_icon.onmouseup = g;
     
@@ -108,8 +120,16 @@ function toggle_timeline_overlay() {
     timeline_is_visible = !timeline_is_visible;
 }
 
+function enable_map_icon() {
+    map_icon.classList.remove("disabled");
+}
+
+function enable_timeline_icon() {
+    timeline_icon.classList.remove("disabled");
+}
+
 let timeline = null;
-function render_timeline(title, subtitle, points, sort_function, map_function, formatter) {
+function render_timeline(title, subtitle, points, sort_function, map_function, formatter, dataLabelsEnabled = false) {
     if (!timeline_is_visible)
         toggle_timeline_overlay();
 
@@ -141,8 +161,8 @@ function render_timeline(title, subtitle, points, sort_function, map_function, f
         plotOptions: {
             series: {
                 dataLabels: {
-                    //allowOverlap: false,
-                    enabled: false
+                    allowOverlap: false,
+                    enabled: dataLabelsEnabled
                 }
             }
         },
