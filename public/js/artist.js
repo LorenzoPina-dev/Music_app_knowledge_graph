@@ -24,45 +24,70 @@ document.addEventListener("DOMContentLoaded", async function () {
         informazioni_wikidata = null;
     else{
         const coord = info_artista.filter(a => a.artista !== undefined)[0]?.coord.value,
-              info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
-        
-        informazioni_wikidata = {
-            artista: info_artista.filter(a => a.artista !== undefined)[0]?.artista.value,
-            coord: { lat:info_coord[1], lng:info_coord[0] },
-            origin: info_artista.filter(a => a.originLabel !== undefined)[0]?.originLabel.value,
-            startWork: info_artista.filter(a => a.startWork !== undefined)[0]?.startWork.value,
-            premi: [
-                ...new Set(
+              info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' '),
+              codiceArtista=info_artista[0].artista.value.slice(info_artista[0].artista.value.lastIndexOf('/')+1,info_artista[0].artista.value.length);
+        Promise.all( [
+                ...new Map(
                     info_artista
                         .filter(i => i.premiLabel !== undefined)
-                        .map(i => i.premiLabel.value)
-                )
-            ]
-        }
+                            .map(i =>[i.premiLabel.value ,{id:i.premi.value.slice(i.premi.value.lastIndexOf('/')+1,i.premi.value.length),nome:i.premiLabel.value}])
+                    ).values()
+                ].map(async i=>{
+                    let {id,nome}=i;
+                    let altroArtista=(await api(`wikidata/suggerimentoArtista?codiceArtista=${codiceArtista}&codicePremio=${id}`));
+                    if(altroArtista.length===0)
+                        return {id,nome };
+                    let idAltroArtista=altroArtista[0].artista.value.slice(altroArtista[0].artista.value.lastIndexOf('/')+1,altroArtista[0].artista.value.length);
+                    return {id,nome,artista:{id:idAltroArtista,nome:altroArtista[0].artistaLabel.value,codice:altroArtista[0].codice.value}};
+                })).then(data=>{
+                    informazioni_wikidata = {
+                    artista: info_artista.filter(a => a.artista !== undefined)[0]?.artista.value,
+                    coord: { lat:info_coord[1], lng:info_coord[0] },
+                    origin: info_artista.filter(a => a.originLabel !== undefined)[0]?.originLabel.value,
+                    startWork: info_artista.filter(a => a.startWork !== undefined)[0]?.startWork.value,
+                    premi:  data
+                };
+                renderData(informazioni_wikidata,autore.body, album.body, idAutore);
+    })
+        
     }
     
-    new Promise(async(resolve, _) => {
+    new Promise(async(resolve, reject) => {
         let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.id)}`),
         codiciArtisti = artisti_str_search.map(p => p.title);
         if (codiciArtisti.length === 0) {
             artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.name)}`),
             codiciArtisti = artisti_str_search.map(p => p.title);
         }
-        
+        if(codiciArtisti.length ===0)
+        {
+            reject("artista non trovato");
+            return;
+        }
+
         const id_canzoni = (await post_api(
             'wikidata/gettest', 
             { codiciArtisti }
         )).map(c => {
             const url = c.canzoni.value;
-            return url.slice(url.lastIndexOf('/') + 1);
+            return url.slice(url.lastIndexOf('/') + 1,url.length);
         });
 
+        if(id_canzoni.length ===0)
+           {
+            reject("artista non ha canzoni");
+            return;
+           } 
         let dati_canzoni = (await post_api(
             'wikidata/songById',
-            { codiciCanzoni:id_canzoni, all:false }
+            { codiciCanzoni:id_canzoni, all:true }
         ))
         dati_canzoni=dati_canzoni.filter(v=>!/^[A-Za-z]\d+$/.test(v.canzoniLabel.value));
-        console.log(dati_canzoni)
+        if(dati_canzoni.length ===0)
+        {
+            reject("canzone non trovata");
+            return;
+        } 
         const dati_timeline = new Map();
         const dati_chart = new Map();
         const ids=new Map();
@@ -79,22 +104,27 @@ document.addEventListener("DOMContentLoaded", async function () {
             chiave=item.canzoniLabel.value;
             if(dati_timeline.has(chiave))
             { 
-                dati_timeline.set(chiave,{nome:item.canzoniLabel.value,pubblicazione:dati_timeline.get(chiave)});
+                dati_timeline.set(chiave,{nome:item.canzoniLabel.value,pubblicazione:dati_timeline.get(chiave).pubblicazione});
             }else
             {
                 let time=new Date(item.pubblicazione.value).getTime();
                 dati_timeline.set(chiave,{nome:item.canzoniLabel.value,pubblicazione:time});
             }
         }
+        let uri_artista=dati_canzoni[0].artista.value;
+        let codiceArtista=uri_artista.slice(uri_artista.lastIndexOf('/')+1,uri_artista.length);
         const result = [];
 
         for (const [key, value] of dati_chart) {
             result.push({
                 nome:key,
                 canzoni: value,
+                suggerimento: await api(`wikidata/suggerimentoCanzone?codiceGenere=${ids.get(key)}&codiceArtista=${codiceArtista}`),
                 id: ids.get(key)
             });
         }
+        console.log(dati_timeline);
+        console.log("fatto");
         resolve({dati_timeline:[...dati_timeline.values()],dati_chart:result});
     }).then(data => {
         console.log(data);
@@ -142,7 +172,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
         console.log("finito timeline");
     });
-    renderData(informazioni_wikidata,autore.body, album.body, idAutore);
 });
 
 function renderData(informazioni_wikidata,autore, album, idAutore) {
@@ -208,7 +237,6 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
         button.onclick = () => {
             let lat = Number(informazioni_wikidata.coord.lat),
                 lng = Number(informazioni_wikidata.coord.lng);
-            console.log([lat, lng]);
             render_map([lat, lng],[{lat, lng,name:name}], 11);
         };
         td.appendChild(button);
@@ -224,10 +252,11 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
             tr = document.createElement("tr"),
             td = document.createElement("td");
             tr.classList.add("lista");
-
             for (let i=0; i<premi_count; i++) {
                 const a = document.createElement("a");
-                a.textContent = informazioni_wikidata.premi[i];
+                a.textContent = informazioni_wikidata.premi[i].nome;
+                if(informazioni_wikidata.premi[i].artista!==undefined) 
+                a.href = `/artist.html?idAutore=${informazioni_wikidata.premi[i].artista.codice}`;
                 td.appendChild(a);
             }
             tr.appendChild(td);

@@ -1,6 +1,12 @@
 const express = require('express'),
       { /*makeRequests, delay,*/ creaOption,fetchData} = require("../utils/GestioneRichieste.js"),
-      {getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getElement,getInfoCanzoneByLabels,findSongByCodiciArtistAndSongName}= require("../utils/queryWikiData.js"),
+      {getInfoArtistaByIdSpotify,
+        getInfoArtistaByCodiciWikidata,
+        getElement,
+        getInfoCanzoneByLabels,
+        findSongByCodiciArtistAndSongName,
+        getAltroArtistaByPremio,
+        getAltraCanzoneByGenere}= require("../utils/queryWikiData.js"),
       /*{ getPubblicazioneAlbum,
               getQueryCanzoniMusicista,
               getInfoArtistaByIdSpotify,
@@ -47,6 +53,32 @@ router.get("/elemento", async (req, res) => {
     try {
         const data = await fetchData(getElement(stringa), true);
         res.json(data.query.search);
+    }
+    catch (err) {
+        console.error(err);
+    }
+});
+router.get("/suggerimentoArtista", async (req, res) => {
+    const codicePremio = req.query.codicePremio,
+          codiceArtista = req.query.codiceArtista;
+
+    try {
+        const url = `/sparql?query=${ encodeURIComponent(getAltroArtistaByPremio(codicePremio,codiceArtista)) }&format=json`,
+        data = await fetchData(creaOption(url, wikydata), true);
+        res.json(data.results.bindings);
+    }
+    catch (err) {
+        console.error(err);
+    }
+});
+router.get("/suggerimentoCanzone", async (req, res) => {
+    const codiceGenere = req.query.codiceGenere,
+          codiceArtista = req.query.codiceArtista;
+
+    try {
+        const url = `/sparql?query=${ encodeURIComponent(getAltraCanzoneByGenere(codiceGenere,codiceArtista)) }&format=json`,
+        data = await fetchData(creaOption(url, wikydata), true);
+        res.json(data.results.bindings);
     }
     catch (err) {
         console.error(err);

@@ -100,6 +100,22 @@ SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ?genere ?genereLabel ${al
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 } LIMIT ${limit}`;
 
+const getAltroArtistaByPremio=(codicePremio,codiceArtista) => `
+select distinct ?artista ?artistaLabel ?codice where {
+        ?artista wdt:P166 wd:${codicePremio};
+                 wdt:P1902 ?codice. 
+        FILTER(?artista != wd:${codiceArtista} ).
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}LIMIT 1`;
+
+const getAltraCanzoneByGenere=(codiceGenere,codiceArtista) => `
+select distinct ?canzoni ?canzoniLabel ?codice where {
+        ?canzoni wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 wd:${codiceGenere};
+                 wdt:P2207|wdt:P2205 ?codice. 
+        FILTER(?artista != wd:${codiceArtista} ).
+        SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+}LIMIT 1`;
+
 
 /*const getQueryCanzoniMusicista = (codiceMusicista, ancheAlbum=true) => `
 SELECT ?artista ?canzoni ?genere ?pubblicazione ?album WHERE {
@@ -295,4 +311,4 @@ const getPubblicazioneAlbum=(codiciAlbum)=>
     `;
 */
 //module.exports = {getPubblicazioneAlbum,getQueryCanzoniMusicista,getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName};
-module.exports ={getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getElement,getInfoCanzoneByLabels,findSongByCodiciArtistAndSongName};
+module.exports ={getAltroArtistaByPremio,getAltraCanzoneByGenere,getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getElement,getInfoCanzoneByLabels,findSongByCodiciArtistAndSongName};
