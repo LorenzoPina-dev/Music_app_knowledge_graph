@@ -4,8 +4,8 @@ async function GetData(id) {
           nomeAutore = canzone_spotify.artists.map(a => FormatArtistName(a.name)),
           nomeCanzone = FormatSongName(canzone_spotify.name);
 
-    const featureCanzone = await api(`songFeature?track_name=${encodeURIComponent(canzone_spotify.name)}`);
-    console.log(featureCanzone);
+   // const featureCanzone = await api(`songFeature?track_name=${encodeURIComponent(canzone_spotify.name)}`);
+    //console.log(featureCanzone);
 
     const dati = canzone_spotify;
 
@@ -15,29 +15,30 @@ async function GetData(id) {
         artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(nomeAutore[0])}`),
         codiciArtisti = artisti_str_search.map(p => p.title);
     }
+    if(codiciArtisti.length > 0) {
+        const id_canzoni = (await post_api(
+            'wikidata/gettest', 
+            { codiciArtisti, nomeCanzone }
+        )).map(c => {
+            const url = c.canzoni.value;
+            return url.slice(url.lastIndexOf('/') + 1);
+        });
+        if(id_canzoni.lengt > 0){
+            const dati_canzoni = (await post_api(
+                'wikidata/songById',
+                { codiciCanzoni:id_canzoni }
+            )).filter(c => {
+                let url = c.artista.value;
+                url = url.slice(url.lastIndexOf('/') + 1);
+                return codiciArtisti.includes(url);
+            });
 
-    const id_canzoni = (await post_api(
-        'wikidata/gettest', 
-        { codiciArtisti, nomeCanzone }
-    )).map(c => {
-        const url = c.canzoni.value;
-        return url.slice(url.lastIndexOf('/') + 1);
-    });
-
-    const dati_canzoni = (await post_api(
-        'wikidata/songById',
-        { codiciCanzoni:id_canzoni }
-    )).filter(c => {
-        let url = c.artista.value;
-        url = url.slice(url.lastIndexOf('/') + 1);
-        return codiciArtisti.includes(url);
-    });
-
-    if (dati_canzoni.length > 0) {
-        dati.wikidata_release_date = dati_canzoni.sort((a, b) => new Date(a.pubblicazione.value) - new Date(b.pubblicazione.value))[0].pubblicazione.value;
-        dati.wikidata_genres = [...new Set(dati_canzoni.map(c => c.genereLabel.value))];
+            if (dati_canzoni.length > 0) {
+                dati.wikidata_release_date = dati_canzoni.sort((a, b) => new Date(a.pubblicazione.value) - new Date(b.pubblicazione.value))[0].pubblicazione.value;
+                dati.wikidata_genres = [...new Set(dati_canzoni.map(c => c.genereLabel.value))];
+            }
+        }
     }
-
     return dati;
 }
 
