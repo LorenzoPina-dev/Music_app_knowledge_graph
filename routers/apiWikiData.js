@@ -1,6 +1,7 @@
 const express = require('express'),
       { /*makeRequests, delay,*/ creaOption,fetchData} = require("../utils/GestioneRichieste.js"),
-      { getQueryCanzoniMusicista,
+      { getPubblicazioneAlbum,
+        getQueryCanzoniMusicista,
         getInfoArtistaByIdSpotify,
         getInfoArtistaByCodiciWikidata,
         getQueryCanzone,
@@ -81,9 +82,10 @@ router.get("/elemento", async (req, res) => {
 
 router.post("/songById", async (req, res) =>{
     const ids = req.body.codiciCanzoni;
-
+    const all= req.body.all;
+    const limit= req.body.limit;
     try {
-        const url = `/sparql?query=${ encodeURIComponent(getInfoCanzoneByLabels(ids)) }&format=json`,
+        const url = `/sparql?query=${ encodeURIComponent(getInfoCanzoneByLabels(ids,limit,all)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings);
     }
@@ -120,4 +122,16 @@ router.post("/gettest", async (req, res) =>{
     }
 });
 
+router.post("/album", async (req, res) =>{
+    const codiciAlbum = req.body.codiciAlbum;
+    console.log(getPubblicazioneAlbum(codiciAlbum));
+    try {
+        const url = `/sparql?query=${ encodeURIComponent(getPubblicazioneAlbum(codiciAlbum)) }&format=json`,
+              data = await fetchData(creaOption(url, wikydata), true);
+        res.json(data.results.bindings);
+    }
+    catch (err) {
+        console.error(err);
+    }
+});
 module.exports = router;

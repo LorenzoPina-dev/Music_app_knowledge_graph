@@ -40,6 +40,51 @@ document.addEventListener("DOMContentLoaded", async function () {
             ]
         }
     }
+    
+    new Promise(async(resolve, reject) => {
+        let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.id)}`),
+        codiciArtisti = artisti_str_search.map(p => p.title);
+        if (codiciArtisti.length === 0) {
+            artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.name)}`),
+            codiciArtisti = artisti_str_search.map(p => p.title);
+        }
+        
+        const id_canzoni = (await post_api(
+            'wikidata/gettest', 
+            { codiciArtisti }
+        )).map(c => {
+            const url = c.canzoni.value;
+            return url.slice(url.lastIndexOf('/') + 1);
+        });
+
+        let dati_canzoni = (await post_api(
+            'wikidata/songById',
+            { codiciCanzoni:id_canzoni, all:false }
+        ))
+        
+        console.log(dati_canzoni)
+        dati_canzoni = [...new Map(dati_canzoni.filter(v=>!/^[A-Za-z]\d+$/.test(v.canzoniLabel.value)).map(item =>{
+            let time=new Date(item.pubblicazione.value).getTime();
+            return [item.canzoniLabel.value, {nome:item.canzoniLabel.value,pubblicazione:time}]
+        })).values()];
+
+        resolve(dati_canzoni);
+    }).then((data)=>{
+        console.log(data);
+        timeline_icon.style.display = "block";
+        timeline_icon.onmouseup = e => {
+            if (e.button === 0) {
+                if (timeline === null)
+                    render_timeline("titolo","sottotitolo",
+                        data,
+                        (a,b) => a.pubblicazione - b.pubblicazione,
+                        v => { return { name:v.nome, description:`successo nel ${formatDate(v.pubblicazione)}.` } })
+                else
+                    toggle_timeline_overlay();
+            }
+        }
+        console.log("finito timeline");
+    });
     renderData(informazioni_wikidata,autore.body, album.body, idAutore);
 });
 
@@ -158,7 +203,7 @@ function renderData(informazioni_wikidata,autore, album, idAutore) {
         div.appendChild(img);
         div.appendChild(a);
 
-        div.onmouseup = e => e.button === 0 ? window.location.assign(`/album.html?idAlbum=${al.uri.slice("spotify:album:".length)}`) : void 0;
+        div.onmouseup = e => e.button === 0 ? window.location.assign(`/album.html?idAlbum=${al.id}`) : void 0;
 
         container.appendChild(div);
     }

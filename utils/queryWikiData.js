@@ -253,7 +253,7 @@ SELECT distinct ?canzoni ?artistaNome  ?artista ?genere ?nomeGenere  ?pubblicazi
 } LIMIT 100`;*/
 
 
-const findSongByCodiciArtistAndSongName=(codiciArtisti,nomeCanzone)=>`
+const findSongByCodiciArtistAndSongName=(codiciArtisti,nomeCanzone="")=>`
 SELECT DISTINCT  ?artista  ?canzoni  WHERE {
     values ?artista {${codiciArtisti.map(q => `wd:${q}`).join(" ")}}.
     {
@@ -263,19 +263,35 @@ SELECT DISTINCT  ?artista  ?canzoni  WHERE {
             ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista;
     }
     ?canzoni rdfs:label ?canzoniLabel.
-    FILTER(REGEX(?canzoniLabel, "${nomeCanzone}", "i") || REGEX("${nomeCanzone}", ?canzoniLabel, "i")).
+    ${nomeCanzone===""?"":`FILTER(REGEX(?canzoniLabel, "${nomeCanzone}", "i") || REGEX("${nomeCanzone}", ?canzoniLabel, "i")).`}
 }limit 100
 `;
 
 //const getInfoCanzoniById
-const getInfoCanzoneByLabels=(idCanzoni)=>`
-SELECT distinct ?canzoni ?canzoniLabel ?artista ?artistaLabel ?genere ?genereLabel ?pubblicazione ?album ?albumLabel WHERE {
+const getInfoCanzoneByLabels=(idCanzoni,limit=100,all=true)=>`
+SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ${all?`?artista ?artistaLabel ?genere ?genereLabel ?album ?albumLabel`:""} WHERE {
     VALUES ?canzoni { ${idCanzoni.map(q => `wd:${q}`).join(" ")} }.
-    ?canzoni wdt:P175  ?artista;
-        wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 ?genere;
-        wdt:P577| wdt:P361/wdt:P577 | wdt:P1433/wdt:P577 ?pubblicazione;
-        wdt:P361|wdt:P1433 ?album.
+     {
+        ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
+    }
+    UNION{
+        ?canzoni (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista.
+    } 
+    ?canzoni wdt:P577| wdt:P361/wdt:P577 | wdt:P1433/wdt:P577 ?pubblicazione${all?
+            `wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 ?genere;
+            wdt:P361|wdt:P1433 ?album.`:"."
+    }
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-} LIMIT 100`
+} LIMIT ${limit}`;
 
-module.exports = {getQueryCanzoniMusicista,getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName};
+const getPubblicazioneAlbum=(codiciAlbum)=>
+    `SELECT distinct ?codice ?dataPubblicazione WHERE {
+        values ?album {${codiciAlbum.map(q => `wd:${q}`).join(" ")}}.
+        ?album wdt:P577 ?dataPubblicazione;
+        optional{
+         ?album wdt:P2205 ?codice;.
+         }
+      }
+    `;
+
+module.exports = {getPubblicazioneAlbum,getQueryCanzoniMusicista,getInfoArtistaByIdSpotify,getInfoArtistaByCodiciWikidata,getQueryCanzone,getElement,getInfoCanzoneByLabels,getQueryCanzoniFatteDaId,findSongByCodiciArtistAndSongName};
