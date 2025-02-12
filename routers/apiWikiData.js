@@ -58,12 +58,11 @@ router.get("/elemento", async (req, res) => {
         console.error(err);
     }
 });
-router.get("/suggerimentoArtista", async (req, res) => {
-    const codicePremio = req.query.codicePremio,
-          codiceArtista = req.query.codiceArtista;
-
+router.post("/suggerimentoArtista", async (req, res) => {
+    const codicePremio = req.body.codicePremio,
+          codiciArtisti = req.body.codiciArtisti;
     try {
-        const url = `/sparql?query=${ encodeURIComponent(getAltroArtistaByPremio(codicePremio,codiceArtista)) }&format=json`,
+        const url = `/sparql?query=${ encodeURIComponent(getAltroArtistaByPremio(codicePremio,codiciArtisti)) }&format=json`,
         data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings);
     }
@@ -71,12 +70,12 @@ router.get("/suggerimentoArtista", async (req, res) => {
         console.error(err);
     }
 });
-router.get("/suggerimentoCanzone", async (req, res) => {
-    const codiceGenere = req.query.codiceGenere,
-          codiceArtista = req.query.codiceArtista;
+router.post("/suggerimentoCanzone", async (req, res) => {
+    const codiceGenere = req.body.codiceGenere,
+          codiciArtisti = req.body.codiciArtisti;
 
     try {
-        const url = `/sparql?query=${ encodeURIComponent(getAltraCanzoneByGenere(codiceGenere,codiceArtista)) }&format=json`,
+        const url = `/sparql?query=${ encodeURIComponent(getAltraCanzoneByGenere(codiceGenere,codiciArtisti)) }&format=json`,
         data = await fetchData(creaOption(url, wikydata), true);
         res.json(data.results.bindings);
     }
@@ -88,7 +87,7 @@ router.get("/suggerimentoCanzone", async (req, res) => {
 router.post("/songById", async (req, res) =>{
     const ids = req.body.codiciCanzoni;
     const all= req.body.all;
-    const limit= req.body.limit;
+    const limit= req.body.limit??100;
     try {
         const url = `/sparql?query=${ encodeURIComponent(getInfoCanzoneByLabels(ids,limit,all)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);

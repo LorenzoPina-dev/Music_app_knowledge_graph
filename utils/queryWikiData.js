@@ -85,7 +85,7 @@ SELECT DISTINCT  ?artista  ?canzoni  WHERE {
 
 //const getInfoCanzoniById
 const getInfoCanzoneByLabels=(idCanzoni,limit=100,all=true)=>`
-SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ?genere ?genereLabel ${all?`?artista ?artistaLabel  ?album ?albumLabel`:""} WHERE {
+SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ?genere ?genereLabel ${all?` ?artista ?artistaLabel  ?album ?albumLabel`:""} WHERE {
     VALUES ?canzoni { ${idCanzoni.map(q => `wd:${q}`).join(" ")} }.
      {
         ?artista  wdt:P358/wdt:P2354/wdt:P658| wdt:P1455|wdt:P800|wdt:P800/wdt:P527|wdt:P264/wdt:P358/wdt:P2354/wdt:P527/wdt:P658 ?canzoni.
@@ -100,19 +100,19 @@ SELECT distinct  ?canzoni ?canzoniLabel ?pubblicazione ?genere ?genereLabel ${al
     SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 } LIMIT ${limit}`;
 
-const getAltroArtistaByPremio=(codicePremio,codiceArtista) => `
+const getAltroArtistaByPremio=(codicePremio,codiciArtisti) => `
 select distinct ?artista ?artistaLabel ?codice where {
         ?artista wdt:P166 wd:${codicePremio};
                  wdt:P1902 ?codice. 
-        FILTER(?artista != wd:${codiceArtista} ).
+        FILTER(?artista NOT iN (${codiciArtisti.map(q => `wd:${q}`).join(", ")}) ).
         SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }LIMIT 1`;
 
-const getAltraCanzoneByGenere=(codiceGenere,codiceArtista) => `
+const getAltraCanzoneByGenere=(codiceGenere,codiciArtisti) => `
 select distinct ?canzoni ?canzoniLabel ?codice where {
         ?canzoni wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 wd:${codiceGenere};
                  wdt:P2207|wdt:P2205 ?codice. 
-        FILTER(?artista != wd:${codiceArtista} ).
+        FILTER(?artista NOT iN (${codiciArtisti.map(q => `wd:${q}`).join(", ")}) ).
         SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }LIMIT 1`;
 

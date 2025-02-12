@@ -24,9 +24,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         informazioni_wikidata = null;
     else{
         const coord = info_artista.filter(a => a.artista !== undefined)[0]?.coord.value,
-              info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' '),
-              codiceArtista=info_artista[0].artista.value.slice(info_artista[0].artista.value.lastIndexOf('/')+1,info_artista[0].artista.value.length);
-        Promise.all( [
+              info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
+              Promise.all( [
                 ...new Map(
                     info_artista
                         .filter(i => i.premiLabel !== undefined)
@@ -34,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                     ).values()
                 ].map(async i=>{
                     let {id,nome}=i;
-                    let altroArtista=(await api(`wikidata/suggerimentoArtista?codiceArtista=${codiceArtista}&codicePremio=${id}`));
+                    let altroArtista=(await post_api(`wikidata/suggerimentoArtista`,{codiciArtisti,codicePremio:id}));
                     if(altroArtista.length===0)
                         return {id,nome };
                     let idAltroArtista=altroArtista[0].artista.value.slice(altroArtista[0].artista.value.lastIndexOf('/')+1,altroArtista[0].artista.value.length);
@@ -48,9 +47,9 @@ document.addEventListener("DOMContentLoaded", async function () {
                     premi:  data
                 };
                 renderData(informazioni_wikidata,autore.body, album.body, idAutore);
-    })
+    
         
-    }
+    });
     
     new Promise(async(resolve, reject) => {
         let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(autore.body.id)}`),
@@ -80,9 +79,9 @@ document.addEventListener("DOMContentLoaded", async function () {
            } 
         let dati_canzoni = (await post_api(
             'wikidata/songById',
-            { codiciCanzoni:id_canzoni, all:true }
+            { codiciCanzoni:id_canzoni, all:false }
         ))
-        dati_canzoni=dati_canzoni.filter(v=>!/^[A-Za-z]\d+$/.test(v.canzoniLabel.value));
+        //dati_canzoni=dati_canzoni.filter(v=>!/^Q\d+$/.test(v.canzoniLabel.value));
         if(dati_canzoni.length ===0)
         {
             reject("canzone non trovata");
@@ -91,9 +90,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         const dati_timeline = new Map();
         const dati_chart = new Map();
         const ids=new Map();
+        console.log(dati_canzoni.map(i=>i.canzoniLabel.value))
         for(let i=0; i<dati_canzoni.length; i++){
             let item=dati_canzoni[i];
-            let chiave=item.genereLabel.value;
+            const chiave=item.genereLabel.value;
             ids.set(chiave,item.genere.value.slice(item.genere.value.lastIndexOf('/')+1,item.genere.value.length));
             if(dati_chart.has(chiave))
             { 
@@ -101,29 +101,28 @@ document.addEventListener("DOMContentLoaded", async function () {
                     dati_chart.set(chiave,[...dati_chart.get(chiave),item.canzoniLabel.value]);
             }else
                 dati_chart.set(chiave,[item.canzoniLabel.value]);
-            chiave=item.canzoniLabel.value;
-            if(dati_timeline.has(chiave))
+                const chiave2=item.canzoniLabel.value;
+            if(dati_timeline.has(chiave2))
             { 
-                dati_timeline.set(chiave,{nome:item.canzoniLabel.value,pubblicazione:dati_timeline.get(chiave).pubblicazione});
+                dati_timeline.set(chiave2,{nome:chiave2,pubblicazione:dati_timeline.get(chiave2).pubblicazione});
             }else
             {
                 let time=new Date(item.pubblicazione.value).getTime();
                 dati_timeline.set(chiave,{nome:item.canzoniLabel.value,pubblicazione:time});
             }
         }
-        let uri_artista=dati_canzoni[0].artista.value;
-        let codiceArtista=uri_artista.slice(uri_artista.lastIndexOf('/')+1,uri_artista.length);
         const result = [];
-
+        console.log(codiciArtisti);
         for (const [key, value] of dati_chart) {
             result.push({
                 nome:key,
                 canzoni: value,
-                suggerimento: await api(`wikidata/suggerimentoCanzone?codiceGenere=${ids.get(key)}&codiceArtista=${codiceArtista}`),
+                suggerimento: await post_api(`wikidata/suggerimentoCanzone`,{codiceGenere:ids.get(key),codiciArtisti:codiciArtisti}),
                 id: ids.get(key)
             });
         }
         console.log(dati_timeline);
+        console.log(result);
         console.log("fatto");
         resolve({dati_timeline:[...dati_timeline.values()],dati_chart:result});
     }).then(data => {
@@ -153,7 +152,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 }
         */
 
-        if (data.dati_chart.length > 0)
+        /*if (data.dati_chart.length > 0)
             enable_chart_icon();
         
         chart_icon.onmouseup = e => {
@@ -169,10 +168,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                 else
                     toggle_chart_overlay();
             }
-        }
+        }*/
         console.log("finito timeline");
     });
-});
+}});
 
 function renderData(informazioni_wikidata,autore, album, idAutore) {
     const container = document.createElement("div");
