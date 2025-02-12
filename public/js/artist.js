@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         timeline_icon.onmouseup = e => {
             if (e.button === 0) {
                 if (timeline === null)
-                    render_timeline("titolo","sottotitolo",
+                    render_timeline("Pubblicazioni","tutte le pubblicazioni di canzoni e album su wikidata",
                         data,
                         (a,b) => a.pubblicazione - b.pubblicazione,
                         v => { return { name:v.nome, description:`successo nel ${formatDate(v.pubblicazione)}.` } })
