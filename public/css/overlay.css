@@ -67,3 +67,13 @@
 body.noscroll {
     overflow: hidden;
 }
+
+.highcharts-tooltip {
+    pointer-events: auto !important;  /* Allow interactions inside the tooltip */
+}
+
+.highcharts-tooltip a {
+    color: #ffcc00 !important; /* Example: Make links more visible */
+    text-decoration: underline !important;
+    font-weight: bold;
+}

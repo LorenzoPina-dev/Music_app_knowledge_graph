@@ -26,51 +26,56 @@ document.addEventListener("DOMContentLoaded", async function () {
           idPlaylist = searchParams.getString("idPlaylist"),
           useSpotify = urlSpotify.length !== 0;
 
-    let data, og_data;
+    let data;
     if (useSpotify) {
         const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify;
-        og_data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
-        console.log(og_data);
-        data = sistemaDati(og_data);
+        data = await api(`spotify/playlist?idPlaylist=${idSpotify}`);
+        console.log(data);
+        data = sistemaDati(data);
         renderData(data);
     }
     else {
-        data = await api(`getPlaylist?idPlaylist=${idPlaylist}`);
+        const tdata = await api(`getPlaylist?idPlaylist=${idPlaylist}`);
+        data = await api(`spotify/canzoni?idCanzoni=${tdata.tracks.map(t => t.track_uri.slice("spotify:track:".length))}`);
+        data.name = tdata.name;
+        console.log({data,tdata})
         renderData(data);
     }
 
     if (map_icon !== null) {
-        let songs = data.tracks;
-        let coordinate=[];
-        Promise.all(songs.map(async s => {
-            const id_autore=s.artist_uri.slice("spotify:artist:".length),
-                  nome_autore=s.artist_name;
+        const songs = data.tracks,
+            coordinate = [];
+
+        Promise.all(songs.filter(s => s.artists[0].name !== "" ).map(async s => {
+            const id_autore = s.artists[0].id,
+                  nome_autore = s.artists[0].name;
+
             let info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(id_autore)}&limit=1`);
             if (info_artista.length === 0) {
-                artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(nome_autore)}`),
-                codiciArtisti = artisti_str_search.map(p => p.title);
+                const artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(nome_autore)}`),
+                      codiciArtisti = artisti_str_search.map(p => p.title);
                 info_artista = (await post_api(
                     'wikidata/artista', 
-                    { codiciArtisti,limit:1 }
+                    { codiciArtisti, limit:1 }
                 ));
             }
             
             let informazioni_wikidata = {};
-            if(info_artista.length ===0)
+            if (info_artista.length === 0)
                 informazioni_wikidata = null;
             else {
-                informazioni_wikidata.artista=info_artista[0].artista.value;
-                let coord=info_artista[0].coord.value;
-                let info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' ');
-                const linkMap=`<a href="/artist.html?idAutore=${id_autore}">${nome_autore}</a>`;
+                informazioni_wikidata.artista = info_artista[0].artista.value;
+                const coord = info_artista[0].coord.value,
+                      info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' '),
+                      linkMap = `<a href="/artist.html?idAutore=${id_autore}">${nome_autore}</a>`;
                 coordinate.push({lat:info_coord[1],lng:info_coord[0],name:linkMap});
             }
-        })).then(()=>{
+        })).then(() => {
             map_icon.style.display = "block";
             map_icon.onmouseup = e => {
                 if (e.button === 0) {
                     if (map === null)
-                        render_map([41.9028, 12.4964], coordinate,2);
+                        render_map([41.9028, 12.4964], coordinate, 2);
                     else
                         toggle_map_overlay();
                 }
@@ -84,14 +89,23 @@ document.addEventListener("DOMContentLoaded", async function () {
         timeline_icon.onmouseup = e => {
             if (e.button === 0) {
                 if (timeline === null)
-                    render_timeline(og_data.name,`playlist da ${og_data.tracks.length} pezzi musicali.`,
-                        og_data.tracks,//[{quasinome:"nome1",quando:135},{quasinome:"nome2",quando:3},{quasinome:"nome3",quando:-1},{quasinome:"nome4",quando:50}],
+                    render_timeline(data.name,`playlist da ${data.tracks.length} pezzi musicali.`,
+                        data.tracks,
                         (t1,t2) => new Date(t1.album.release_date).getTime() - new Date(t2.album.release_date).getTime(),
-                        v => { return { x: new Date(v.album.release_date), artist_name:v.artists[0].name, track_name:v.name, album_name:v.album.name, name:v.album.release_date } },
+                        v => { return { 
+                            x: new Date(v.album.release_date),
+                            artist_id: v.artists[0].id, // v.artists.map(a => `<a href="/artist.html?idAutore=${a.id}">${a.name}</a>`).join(""), 
+                            artist_name: v.artists[0].name, // v.artists.map(a => `<a href="/artist.html?idAutore=${a.id}">${a.name}</a>`).join(""), 
+                            track_id: v.id,
+                            track_name: v.name,
+                            album_id: v.album.id,
+                            album_name: v.album.name, 
+                            name: v.album.release_date 
+                        } },
                         function() {
-                            return `<p>${this.point.track_name}</p><br>` +
-                                    `<p>${this.point.artist_name}</p><br>` +
-                                    `<p>${this.point.album_name}</p><br>`;
+                            return `<p><a href="/song.html?idCanzone=${this.point.track_id}">${this.point.track_name}</a></p><br>
+                                    <p><a href="/artist.html?idAutore=${this.point.artist_id}">${this.point.artist_name}</a></p><br>
+                                    <p><a href="/album.html?idAlbum=${this.point.album_id}">${this.point.album_name}</a></p><br>`;
                         });
                 else
                     toggle_timeline_overlay();
@@ -105,6 +119,8 @@ function renderData(playlist) {
     let i = 0;
     let title = playlist.name;
     let songs = playlist.tracks;
+
+    console.log({title, songs})
     document.title = title;
     // Promise.all(songs.map(async e => {
     //     const artista = e.artist_uri.split(":")[2],
@@ -187,12 +203,12 @@ function renderData(playlist) {
         //     artist = artistId;
         // }
 
-        const artistId = s.artist_uri.slice("spotify:artist:".length),
-              albumId = s.album_uri.slice("spotify:album:".length),
-              song = s.track_name,
-              songUri = s.track_uri.slice("spotify:track:".length),
-              album = s.album_name,
-              artist = s.artist_name;
+        const artistId = s.artists[0].id,
+              albumId = s.album.id,
+              song = s.name,
+              songUri = s.id,
+              album = s.album.name,
+              artist = s.artists[0].name;
 
         a_song.href = `/song.html?idCanzone=${songUri}`;
         a_song.textContent = song;

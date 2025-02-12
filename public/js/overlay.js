@@ -123,6 +123,7 @@ function render_timeline(title, subtitle, points, sort_function, map_function, f
         },
         tooltip: {
             useHTML: true,
+            hideDelay: 1000,
             formatter: formatter
         },
         xAxis: {
