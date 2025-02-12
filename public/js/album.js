@@ -45,6 +45,7 @@ function renderData(album) {
           th_tracks_duration = document.createElement("th");
 
     const album_img = document.createElement("img");
+    console.log(album.images)
     album_img.src = album.images[1].url;
     document.body.appendChild(album_img);
 

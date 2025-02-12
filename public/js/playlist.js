@@ -52,7 +52,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         renderData(data);
     }
 
-    if (map_icon !== null) {
+    const map_overlay = new MapOverlay();
+
+    {
         const songs = data.tracks;
         let coordUnivoche = new Map();
         const autoriUnivoci = [...new Map(songs.map(s=>[s.artists[0].id,s.artists[0]])).values()];
@@ -78,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                 const coord = info_artista[0].coord.value,
                       info_coord = coord.slice(coord.indexOf('(') + 1, coord.lastIndexOf(')')).split(' '),
                       linkMap = `<a href="/artist.html?idAutore=${id_autore}">${nome_autore}</a>`;
-                let chiave=info_coord.join(",");
+                let chiave = info_coord.join(",");
                 if(coordUnivoche.has(chiave)){
                     const vecchio_valore=coordUnivoche.get(chiave).name;
                     coordUnivoche.set(chiave,{lat:info_coord[1],lng:info_coord[0],name:vecchio_valore+"<br>"+linkMap});
@@ -87,51 +89,48 @@ document.addEventListener("DOMContentLoaded", async function () {
             }
         })).then(() => {
             //console.log([ ...coordUnivoche.values()].map(c=>c.name));
-            if (coordUnivoche.size !== 0)
-                enable_map_icon();
+            if (coordUnivoche.size === 0)
+                return;
 
-            map_icon.onmouseup = e => {
+            map_overlay.enable_external_toggle(e => {
                 if (e.button === 0) {
-                    if (map === null)
-                        render_map([31.042428797166856, 0], [ ...coordUnivoche.values()], 2);
+                    if (map_overlay.render_object === null)
+                        map_overlay.render([31.042428797166856, 0], [ ...coordUnivoche.values()], 2);
                     else
-                        toggle_map_overlay();
+                        map_overlay.toggle_overlay();
                 }
-            }
+            })
             console.log("finito");
         })
     }
 
-    if (timeline_icon !== null) {
-        if (data.tracks.length > 0)
-            enable_timeline_icon();
-
-        timeline_icon.onmouseup = e => {
-            if (e.button === 0) {
-                if (timeline === null)
-                    render_timeline(data.name,`playlist da ${data.tracks.length} pezzi musicali.`,
-                        data.tracks,
-                        (t1,t2) => new Date(t1.album.release_date).getTime() - new Date(t2.album.release_date).getTime(),
-                        v => { return { 
-                            x: new Date(v.album.release_date),
-                            artist_id: v.artists[0].id, // v.artists.map(a => `<a href="/artist.html?idAutore=${a.id}">${a.name}</a>`).join(""), 
-                            artist_name: v.artists[0].name, // v.artists.map(a => `<a href="/artist.html?idAutore=${a.id}">${a.name}</a>`).join(""), 
-                            track_id: v.id,
-                            track_name: v.name,
-                            album_id: v.album.id,
-                            album_name: v.album.name, 
-                            name: v.album.release_date 
-                        } },
-                        function() {
-                            return `<p><a href="/song.html?idCanzone=${this.point.track_id}">${this.point.track_name}</a></p><br>
-                                    <p><a href="/artist.html?idAutore=${this.point.artist_id}">${this.point.artist_name}</a></p><br>
-                                    <p><a href="/album.html?idAlbum=${this.point.album_id}">${this.point.album_name}</a></p><br>`;
-                        });
-                else
-                    toggle_timeline_overlay();
-            }
+    const timeline_overlay = new TimelineOverlay();
+    
+    timeline_overlay.enable_external_toggle(e => {
+        if (e.button === 0) {
+            if (timeline_overlay.render_object === null)
+                timeline_overlay.render(data.name,`playlist da ${data.tracks.length} pezzi musicali.`,
+                    data.tracks,
+                    (t1,t2) => new Date(t1.album.release_date).getTime() - new Date(t2.album.release_date).getTime(),
+                    v => { return { 
+                        x: new Date(v.album.release_date),
+                        artist_id: v.artists[0].id, // v.artists.map(a => `<a href="/artist.html?idAutore=${a.id}">${a.name}</a>`).join(""), 
+                        artist_name: v.artists[0].name, // v.artists.map(a => `<a href="/artist.html?idAutore=${a.id}">${a.name}</a>`).join(""), 
+                        track_id: v.id,
+                        track_name: v.name,
+                        album_id: v.album.id,
+                        album_name: v.album.name, 
+                        name: v.album.release_date 
+                    } },
+                    function() {
+                        return `<p><a href="/song.html?idCanzone=${this.point.track_id}">${this.point.track_name}</a></p><br>
+                                <p><a href="/artist.html?idAutore=${this.point.artist_id}">${this.point.artist_name}</a></p><br>
+                                <p><a href="/album.html?idAlbum=${this.point.album_id}">${this.point.album_name}</a></p><br>`;
+                    });
+            else
+                timeline_overlay.toggle_overlay();
         }
-    }
+    })
 
 });
 

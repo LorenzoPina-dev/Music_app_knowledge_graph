@@ -1,139 +1,119 @@
-let map = null,
-    markersLayer = null;
-function render_map(view_target, points, zoom=6) {
-    if (!map_is_visible)
-        toggle_map_overlay();
+class Overlay {
+    constructor(render_target_id, external_toggle_id, render_specific, append_target=document.body) {
+        const overlay_container = document.createElement("div"),
+              render_target = document.createElement("div"),
+              external_toggle = document.createElement("div"),
+              internal_toggle = document.createElement("button");
 
-    if (map === null) {
-        map = L.map("map", { worldCopyJump: false, minZoom: 2 }).setView(view_target, zoom);
+        overlay_container.classList.add("overlay");
+        render_target.id = render_target_id;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            noWrap: true,
-            bounds: [
-                [-90, -180], // Southwest corner
-                [90, 180]    // Northeast corner
-            ],
-        }).addTo(map);
+        const f = e => e.button === 0 ? this.toggle_overlay() : void 0;
 
-        map.setMaxBounds([
-            [-85, -180], // Slightly adjusted bounds to prevent tile glitches
-            [85, 180]
-        ]);
+        external_toggle.classList.add("toggle", "disabled");
+        external_toggle.id = external_toggle_id;
+        external_toggle.onmouseup = f;
 
-        map.options.maxBoundsViscosity = 1.0; // Prevents dragging beyond maxBounds
+        internal_toggle.textContent = "x";
+        internal_toggle.onmouseup = f;
 
-        markersLayer = L.layerGroup().addTo(map);
+        overlay_container.appendChild(render_target);
+        overlay_container.appendChild(internal_toggle);
+
+        this.external_toggle = external_toggle;
+        this.overlay_container = overlay_container;
+
+        this.render_target_id = render_target_id;
+        this.render_object = null;
+        this.markersLayer = null;
+        this.overlay_is_visible = false;
+        this.flush_on_hidden = "invalidateSize";
+
+        append_target.appendChild(this.external_toggle);
+        append_target.appendChild(this.overlay_container);
+
+        this.render_specific = render_specific;
     }
-    else {
-        markersLayer.clearLayers();
+    toggle_overlay() {
+        if (this.overlay_is_visible) {
+            document.body.classList.remove("noscroll");
+            this.overlay_container.style.display = "none";
+            this.overlay_container.style.pointerEvents = "none";
+        }
+        else {
+            if (this.render_object !== null) setTimeout(this.render_object[this.flush_on_hidden], 300);
+            document.body.classList.add("noscroll");
+            this.overlay_container.style.display = "flex";
+            this.overlay_container.style.pointerEvents = "all";
+        }
+        this.overlay_is_visible = !this.overlay_is_visible;
     }
+    enable_external_toggle(onmouseup=undefined) {
+        if (onmouseup !== undefined)
+            this.external_toggle.onmouseup = onmouseup;
 
+        this.external_toggle.classList.remove("disabled");
+    }
+    render(...args) {
+        if (!this.overlay_is_visible)
+            this.toggle_overlay();
+
+        if (this.render_object === null)
+            this.render_object = this.render_specific(this.render_target_id, ...args);
+    }
+}
+
+class MapOverlay extends Overlay {
+    constructor(append_target=document.body) {
+        super("map", "map-toggle", render_map, append_target);
+    }
+}
+
+class TimelineOverlay extends Overlay {
+    constructor(append_target=document.body) {
+        super("timeline", "timeline-toggle", render_timeline, append_target);
+    }
+}
+
+class GenresOverlay extends Overlay {
+    constructor(append_target=document.body) {
+        super("genres", "genres-toggle", render_genres, append_target);
+    }
+}
+
+
+function render_map(render_target, view_target, points, zoom=6) {
+    const map = L.map(render_target, { worldCopyJump: false, minZoom: 2 }).setView(view_target, zoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        noWrap: true,
+        bounds: [
+            [-90, -180], // Southwest corner
+            [90, 180]    // Northeast corner
+        ],
+    }).addTo(map);
+
+    map.setMaxBounds([
+        [-85, -180], // Slightly adjusted bounds to prevent tile glitches
+        [85, 180]
+    ]);
+
+    map.options.maxBoundsViscosity = 1.0; // Prevents dragging beyond maxBounds
+
+    const markersLayer = L.layerGroup().addTo(map);
+    
     for (let i=0; i<points.length; i++) {
         L.marker([points[i].lat, points[i].lng])
             .addTo(markersLayer)
             .bindPopup(`<b>${points[i].name}</b>`)
     }
+
+    return map;
 }
 
-let map_overlay = null,
-    map_element = null,
-    map_icon = null,
-    timeline_overlay = null,
-    timeline_element = null,
-    timeline_icon = null;
-document.addEventListener("DOMContentLoaded", () => {
-    map_overlay = document.createElement("div");
-    map_overlay.classList.add("overlay");
-
-    map_element = document.createElement("div");
-    map_element.id = "map";
-
-    const f = e => e.button === 0 ? toggle_map_overlay() : void 0;
-
-    map_icon = document.createElement("div");
-    map_icon.classList.add("toggle", "disabled");
-    map_icon.id = "map-toggle";
-    map_icon.onmouseup = f;
-    
-    const map_overlay_button = document.createElement("button");
-    map_overlay_button.textContent = "x";
-    map_overlay_button.onmouseup = f
-    
-    document.body.appendChild(map_icon);
-    map_overlay.appendChild(map_element);
-    map_overlay.appendChild(map_overlay_button);
-    document.body.appendChild(map_overlay);
-
-    const g = e => e.button === 0 ? toggle_timeline_overlay() : void 0;
-
-    timeline_overlay = document.createElement("div");
-    timeline_overlay.classList.add("overlay");
-
-    timeline_element = document.createElement("div");
-    timeline_element.id = "timeline";
-
-    timeline_icon = document.createElement("div");
-    timeline_icon.classList.add("toggle", "disabled");
-    timeline_icon.id = "timeline-toggle";
-    timeline_icon.onmouseup = g;
-    
-    const timeline_overlay_button = document.createElement("button");
-    timeline_overlay_button.textContent = "x";
-    timeline_overlay_button.onmouseup = g;
-    
-    document.body.appendChild(timeline_icon);
-    timeline_overlay.appendChild(timeline_element);
-    timeline_overlay.appendChild(timeline_overlay_button);
-    document.body.appendChild(timeline_overlay);
-});
-
-let map_is_visible = false;
-function toggle_map_overlay() {
-    if (map_is_visible) {
-        document.body.classList.remove("noscroll");
-        map_overlay.style.display = "none";
-        map_overlay.style.pointerEvents = "none";
-    }
-    else if (!timeline_is_visible) {
-        if (map !== null) setTimeout(map.invalidateSize, 300);
-        document.body.classList.add("noscroll");
-        map_overlay.style.display = "flex";
-        map_overlay.style.pointerEvents = "all";
-    }
-    map_is_visible = !map_is_visible;
-}
-
-let timeline_is_visible = false;
-function toggle_timeline_overlay() {
-    if (timeline_is_visible) {
-        document.body.classList.remove("noscroll");
-        timeline_overlay.style.display = "none";
-        timeline_overlay.style.pointerEvents = "none";
-    }
-    else if (!map_is_visible) {
-        if (timeline !== null) setTimeout(timeline.reflow, 300);
-        document.body.classList.add("noscroll");
-        timeline_overlay.style.display = "flex";
-        timeline_overlay.style.pointerEvents = "all";
-    }
-    timeline_is_visible = !timeline_is_visible;
-}
-
-function enable_map_icon() {
-    map_icon.classList.remove("disabled");
-}
-
-function enable_timeline_icon() {
-    timeline_icon.classList.remove("disabled");
-}
-
-let timeline = null;
-function render_timeline(title, subtitle, points, sort_function, map_function, formatter, dataLabelsEnabled = false) {
-    if (!timeline_is_visible)
-        toggle_timeline_overlay();
-
-    timeline = Highcharts.chart('timeline', {
+function render_timeline(render_target_id, title, subtitle, points, sort_function, map_function, formatter, dataLabelsEnabled = false) {
+    return Highcharts.chart(render_target_id, {
         chart: {
             type: 'timeline',
             zooming: {
@@ -175,5 +155,94 @@ function render_timeline(title, subtitle, points, sort_function, map_function, f
         series: [{
             data: points.sort(sort_function).map(map_function)
         }]
+    });
+}
+
+function render_genres(render_target_id, title, subtitle, points) {
+    return Highcharts.chart(render_target_id, {
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: title
+        },
+        subtitle: {
+            text: subtitle
+        },
+        tooltip: {
+
+            format: '{point.percentage:.1f}%',
+            valueSuffix: '%'
+        },
+        plotOptions: {
+            series: {
+                cursor: 'pointer',
+                dataLabels: [{
+                    enabled: true,
+                    distance: 20
+                }, {
+                    enabled: true,
+                    distance: -40,
+                    format: '{point.percentage:.1f}%',
+                    style: {
+                        fontSize: '1.2em',
+                        textOutline: 'none',
+                        opacity: 0.7,
+                        color: "white"
+                    },
+                    filter: {
+                        operator: '>',
+                        property: 'percentage',
+                        value: 5
+                    }
+                }]
+                // dataLabels: [{
+                //     enabled: true,
+                //     distance: 20
+                // }, {
+                //     enabled: true,
+                //     distance: -40,
+                //     format: '{point.percentage:.1f}%',
+                //     style: {
+                //         fontSize: '1.2em',
+                //         textOutline: 'none',
+                //         opacity: 0.7
+                //     },
+                //     filter: {
+                //         operator: '>',
+                //         property: 'percentage',
+                //         value: 10
+                //     }
+                // }]
+            }
+        },
+        series: [
+            {
+                name: 'genres',
+                colorByPoint: true,
+                data: points
+            }
+        ]
+    });
+}
+
+window.onload = () => {
+    Highcharts.setOptions({
+        colors: Highcharts.getOptions().colors.map(function (color) {
+            return {
+                radialGradient: {
+                    cx: 0.5,
+                    cy: 0.3,
+                    r: 0.7
+                },
+                stops: [
+                    [0, color],
+                    [1, Highcharts.color(color).brighten(-0.3).get('rgb')] // darken
+                ]
+            };
+        })
     });
 }

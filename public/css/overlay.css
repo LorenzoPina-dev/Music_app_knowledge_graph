@@ -21,6 +21,11 @@
     height: 90%;
 }
 
+.overlay #genres {
+    width: 90%;
+    height: 90%;
+}
+
 .overlay button {
     position: fixed;
     right: 1%;
@@ -57,14 +62,8 @@
 }
 
 .toggle.disabled {
-    background-color: rgba(0,0,0,0.5);
-    background-blend-mode: multiply;
+    opacity: 0.5;
     pointer-events: none;
-}
-
-#map-toggle {
-    top: 50%;
-    background-image: url("../icons/map_icon.png");
 }
 
 #timeline-toggle {
@@ -72,15 +71,25 @@
     background-image: url("../icons/timeline_icon.png");
 }
 
+#map-toggle {
+    top: 50%;
+    background-image: url("../icons/map_icon.png");
+}
+
+#genres-toggle {
+    top: 65%;
+    background-image: url("../icons/genres_icon.png");
+}
+
 body.noscroll {
     overflow: hidden;
 }
 
-.highcharts-tooltip {
+.highcharts-tooltip, .highcharts-label {
     pointer-events: auto !important;  /* Allow interactions inside the tooltip */
 }
 
-.highcharts-tooltip span {
+.highcharts-tooltip span, .highcharts-label text {
     width: 300px !important;
     overflow: hidden !important;
     text-align: center !important;
