@@ -158,7 +158,7 @@ function render_timeline(render_target_id, title, subtitle, points, sort_functio
     });
 }
 
-function render_genres(render_target_id, title, subtitle, points) {
+function render_genres(render_target_id, title, subtitle, points, dataLabelFormatter, tooltipFormatter, onclick) {
     return Highcharts.chart(render_target_id, {
         chart: {
             plotBackgroundColor: null,
@@ -173,36 +173,28 @@ function render_genres(render_target_id, title, subtitle, points) {
             text: subtitle
         },
         tooltip: {
-
-            format: '{point.percentage:.1f}%',
-            valueSuffix: '%'
+            useHTML: true,
+            formatter: tooltipFormatter
         },
         plotOptions: {
+            //pie: {
             series: {
+                allowPointSelect: true, // Allows clicking to select
                 cursor: 'pointer',
+                point: {
+                    events: {
+                        click: onclick
+                    }
+                },
                 dataLabels: [{
                     enabled: true,
                     distance: 20,
-                    useHTML: true, // Permette l'uso di HTML nei label
-                    events: {
-                        click: function () {
-                            if (this.options.url) {
-                                window.location.assign(this.options.url);
-                            }
-                        }
-                    },
+                    useHTML: true,
+                    formatter: dataLabelFormatter
                 }, {
                     enabled: true,
                     distance: -40,
                     format: '{point.percentage:.1f}%',
-                    useHTML: true,
-                    events: {
-                        click: function () {
-                            if (this.options.url) {
-                                window.location.assign(this.options.url);
-                            }
-                        }
-                    },
                     style: {
                         fontSize: '1.2em',
                         textOutline: 'none',
@@ -215,24 +207,7 @@ function render_genres(render_target_id, title, subtitle, points) {
                         value: 5
                     }
                 }]
-                // dataLabels: [{
-                //     enabled: true,
-                //     distance: 20
-                // }, {
-                //     enabled: true,
-                //     distance: -40,
-                //     format: '{point.percentage:.1f}%',
-                //     style: {
-                //         fontSize: '1.2em',
-                //         textOutline: 'none',
-                //         opacity: 0.7
-                //     },
-                //     filter: {
-                //         operator: '>',
-                //         property: 'percentage',
-                //         value: 10
-                //     }
-                // }]
+            //}
             }
         },
         series: [

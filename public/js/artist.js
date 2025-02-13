@@ -1,3 +1,5 @@
+let timeline_overlay, map_overlay, genres_overlay;
+
 document.addEventListener("DOMContentLoaded", async function () {
     const idAutore = searchParams.getString("idAutore"),
           offset = searchParams.getNumber("offset");
@@ -19,8 +21,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
     else info_artista = await api(`wikidata/artista?idSpotify=${encodeURIComponent(idAutore)}`);
 
-    const genres_overlay = new GenresOverlay(),
-          timeline_overlay = new TimelineOverlay();
+    genres_overlay = new GenresOverlay(),
+    timeline_overlay = new TimelineOverlay();
+    map_overlay = new MapOverlay();
 
     let wikidata = {};
     if (info_artista.length === 0)
@@ -80,7 +83,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         } 
         let dati_canzoni = (await post_api(
             'wikidata/songById',
-            { codiciCanzoni:id_canzoni, all:false, limit:200 }
+            { codiciCanzoni:id_canzoni, all:false, limit:100 }
         ))
         //dati_canzoni=dati_canzoni.filter(v=>!/^Q\d+$/.test(v.canzoniLabel.value));
         if(dati_canzoni.length === 0) {
@@ -146,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async function () {
                             false)
 
                     else
-                    timeline_overlay.toggle_overlay();
+                        timeline_overlay.toggle_overlay();
                 }
             })
         }
@@ -169,15 +172,41 @@ document.addEventListener("DOMContentLoaded", async function () {
                 if (genres_overlay.render_object === null)
                     genres_overlay.render("Generi", `informazioni wikidata su ${data.dati_genres.length} composizioni.`,
                         data.dati_genres.map(v => {
-                            let ogg={name:v.nome, y:v.canzoni.length/tot_genres*100}
-                            if(v.suggerimento.length > 0)
-                            {
-                                ogg.url=`/song.html?idCanzone=${v.suggerimento[0]?.codice.value}`;
-                                ogg.name+=v.suggerimento[0]?.canzoniLabel.value;
+                            let ogg = { 
+                                y: v.canzoni.length/tot_genres*100, 
+                                genre_name:v.nome,
+                                song_id: "",
+                                song_name: ""
+                            };
+                            if(v.suggerimento.length > 0) {
+                                ogg.song_id=`/song.html?idCanzone=${v.suggerimento[0]?.codice.value}`;
+                                ogg.song_name = v.suggerimento[0]?.canzoniLabel.value;
                             }  
-                            console.log(ogg);
-                            return ogg}))
+                            return ogg
+                        }),
+                        // data label formatter
+                        function() {
+                            return `<p>${this.point.genre_name}</p>`;
+                        },
+                        // tooltip formatter
+                        function() {
+                            const pct = this.point.y,
+                                  is_int = pct % 1 === 0,
+                                  formatted_pct = is_int ? `${pct}` : pct.toFixed(1);
+                            if (this.point.song_id !== "" && this.point.song_name !== "")
+                                return `<p>${this.point.genre_name}: ${formatted_pct}%</p><br><a href="">${this.point.song_name}</a>`
+                            else
+                                return `<p>${this.point.genre_name}: ${formatted_pct}%</p>`;
+                        },
+                        // slice on click
+                        function(e) {
+                            if (e.button !== 0)
+                                return;
 
+                            if (this.point.song_id !== "") {
+                                e.ctrlKey ? window.open(this.point.song_id) : window.location.assign(this.point.song_id);
+                            }
+                        });
                 else
                     genres_overlay.toggle_overlay();
             }
@@ -241,7 +270,6 @@ function renderData(wikidata, autore, album, idAutore) {
         tr.appendChild(td);
         overview_table.appendChild(tr);
     }
-    const map_overlay = new MapOverlay();
 
     if (wikidata !== null) {
         if (wikidata.origin !== undefined && wikidata.coord !== undefined) {
@@ -355,8 +383,6 @@ function renderData(wikidata, autore, album, idAutore) {
 
         navigate_clone.firstChild.onmouseup = left_button.onmouseup;  
         navigate_clone.lastChild.onmouseup = right_button.onmouseup;
-
-        window["test"] = navigate_clone;
 
         document.body.appendChild(navigate);
         document.body.appendChild(container);
