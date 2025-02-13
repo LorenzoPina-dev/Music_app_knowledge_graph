@@ -1,11 +1,13 @@
 const express = require('express');
 const fs= require('fs');
+const path = require('path');
 const apiRouter = require("./routers/api.js"); // Importa il router
 const apiWikiDataRouter = require("./routers/apiWikiData.js"); // Importa il router
 const apiSpotifyRouter = require("./routers/apispotify.js"); // Importa il router
 const app = express();
 const port = 3000;
 
+app.use('/favicon.ico', express.static(path.join(__dirname, 'public/icons/favicon.ico')));
 
 app.use(express.json()); // Per JSON
 app.use(express.urlencoded({ extended: true })); // Per form-data

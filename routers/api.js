@@ -41,7 +41,7 @@ router.get('/getNplaylist', (req, res) => {
     res.json(risp);
 });
 
-  router.get('/getPlaylist', (req, res) => {
+router.get('/getPlaylist', (req, res) => {
     let idPlaylist = req.query.idPlaylist;
     if (idPlaylist === undefined) {
         res.status(400).send("Mancante l'id della playlist");

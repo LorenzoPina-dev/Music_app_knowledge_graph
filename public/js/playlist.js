@@ -1,4 +1,4 @@
-let timeline_overlay, map_overlay,genres_overlay;
+let timeline_overlay, map_overlay, genres_overlay;
 
 function filter_out_blocked_songs(data) {
     data.tracks = data.tracks.filter(s => s.name !== "" && s.artists[0].name !== "" && s.album.name !== "");
@@ -37,13 +37,12 @@ document.addEventListener("DOMContentLoaded", async function () {
         const songs = data.tracks;
         let coordUnivoche = new Map();
         const all_artists = songs.map(s => s.artists).flat();
-        console.log(songs);
         
         let generi=new Map();
         Promise.all(songs.map(async s => {
             const id_artisti=s.artists[0].id,
-                 nome_artista=s.artists[0].name,
-                 nome_canzone=s.name;
+                 nome_artista=FormatArtistName(s.artists[0].name),
+                 nome_canzone=FormatSongName(s.name);
             let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(id_artisti)}`),
             codiciArtisti = artisti_str_search.map(p => p.title);
             if (codiciArtisti.length === 0) {
@@ -142,7 +141,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             })
         });
         const autoriUnivoci = [...new Map(all_artists.map(a => [a.id, a])).values()];
-        console.log(all_artists, [...all_artists])
         Promise.all(autoriUnivoci.map(async s => {
             const id_autore = s.id,
                   nome_autore = s.name;
@@ -171,7 +169,6 @@ document.addEventListener("DOMContentLoaded", async function () {
             else coordUnivoche.set(chiave,{lat:info_coord[1],lng:info_coord[0],name:linkMap});
 
         })).then(() => {
-            //console.log([ ...coordUnivoche.values()].map(c=>c.name));
             if (coordUnivoche.size === 0)
                 return;
 
@@ -183,7 +180,6 @@ document.addEventListener("DOMContentLoaded", async function () {
                         map_overlay.toggle_overlay();
                 }
             })
-            console.log("finito");
         })
     }
     
@@ -216,7 +212,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 });
 
 function renderData(playlist) {
-    console.log(playlist);
     let i = 0;
     let title = playlist.name;
     let songs = playlist.tracks;
@@ -233,7 +228,7 @@ function renderData(playlist) {
     h1.textContent = `Playlist: ${title}`;
     document.body.prepend(h1);
 
-    th_song.textContent = "# titolo";
+    th_song.textContent = "titolo";
     th_album.textContent = "album";
     th_duration.textContent = "durata";
 
@@ -250,7 +245,7 @@ function renderData(playlist) {
               td_album = document.createElement("td"),
               a_album = document.createElement("a"),
               td_duration = document.createElement("td");
-
+              
         const s = songs[i];
 
         const albumId = s.album.id,

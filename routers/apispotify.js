@@ -5,9 +5,9 @@ const express = require('express'),
       router = express.Router();
 
 const spotifyApi = new SpotifyWebApi({
-    clientId: process.env.CLIENT_ID,      // Sostituisci con il tuo clientId
-    clientSecret: process.env.CLIENT_SECRET, // Sostituisci con il tuo clientSecret
-    redirectUri: process.env.CLIENT_REDIRECT_URI // Imposta l'URI di redirezione
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    redirectUri: process.env.CLIENT_REDIRECT_URI
 });
 
 authenticateSpotify();

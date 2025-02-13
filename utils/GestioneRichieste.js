@@ -45,7 +45,6 @@ async function makeRequests(querys, callback) {
     for (let i = 0; i < querys.length; i++) {
         try {
             const ris = await fetchData(querys[i],true);
-            //console.log(callback(ris));
             results.push(callback(ris));
             if (i < querys.length - 1) {
                 await delay(20); // Delay di 1 secondo

@@ -4,9 +4,6 @@ async function GetData(id) {
           nomeAutore = canzone_spotify.artists.map(a => FormatArtistName(a.name)),
           nomeCanzone = FormatSongName(canzone_spotify.name);
 
-   // const featureCanzone = await api(`songFeature?track_name=${encodeURIComponent(canzone_spotify.name)}`);
-    //console.log(featureCanzone);
-
     const dati = canzone_spotify;
 
     let artisti_str_search = await api(`wikidata/elemento?stringa=${encodeURIComponent(idAutore[0])}`),

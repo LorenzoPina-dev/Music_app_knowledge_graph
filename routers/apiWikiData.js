@@ -114,7 +114,6 @@ router.post("/gettest", async (req, res) =>{
 
 router.post("/album", async (req, res) =>{
     const codiciAlbum = req.body.codiciAlbum;
-    console.log(getPubblicazioneAlbum(codiciAlbum));
     try {
         const url = `/sparql?query=${ encodeURIComponent(getPubblicazioneAlbum(codiciAlbum)) }&format=json`,
               data = await fetchData(creaOption(url, wikydata), true);

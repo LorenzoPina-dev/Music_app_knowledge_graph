@@ -96,7 +96,7 @@ body.noscroll {
 }
 
 .highcharts-tooltip a {
-    color: black !important; /* Example: Make links more visible */
+    color: black !important;
     text-decoration: underline !important;
-    font-weight: bold;
+    font-weight: bold !important;
 }

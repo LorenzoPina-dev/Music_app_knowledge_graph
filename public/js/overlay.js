@@ -117,26 +117,20 @@ function render_timeline(render_target_id, title, subtitle, points, sort_functio
         chart: {
             type: 'timeline',
             zooming: {
-                type: 'x',
-                mouseWheel: true
+                type: 'x'
             }
         },
         tooltip: {
+            stickOnContact: true,
             useHTML: true,
             hideDelay: 1000,
             formatter: formatter
         },
         xAxis: {
-            type: 'datetime',
-            labels: {
-                staggerLines: 2
-            }
+            type: 'datetime'
         },
         yAxis: {
             visible: false
-        },
-        accessibility:{
-            highContrastMode:"auto",
         },
         plotOptions: {
             series: {
@@ -173,6 +167,7 @@ function render_genres(render_target_id, title, subtitle, points, dataLabelForma
             text: subtitle
         },
         tooltip: {
+            followPointer: false,
             useHTML: true,
             formatter: tooltipFormatter
         },
@@ -188,7 +183,7 @@ function render_genres(render_target_id, title, subtitle, points, dataLabelForma
                 },
                 dataLabels: [{
                     enabled: true,
-                    distance: 20,
+                    distance: 50,
                     useHTML: true,
                     formatter: dataLabelFormatter
                 }, {

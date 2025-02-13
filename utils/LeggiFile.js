@@ -102,13 +102,5 @@ function getPlaylistDyId(idPlaylist) {
 
     return result;
 }
-/*
-let ris=getListPlaylists(5)
-for(const playlists of ris) {
-    playlists.map((d)=>{
-        d.map((r)=>console.log(r));
-    });
-}
-*/
-//export default getListPlaylists;
+
 module.exports = { getSongs, getListPlaylists,getPlaylistDyId,getNames };
