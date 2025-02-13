@@ -10,6 +10,10 @@ document.addEventListener("DOMContentLoaded", async function () {
           idPlaylist = searchParams.getString("idPlaylist"),
           useSpotify = urlSpotify.length !== 0;
 
+    genres_overlay = new GenresOverlay();
+    timeline_overlay = new TimelineOverlay();
+    map_overlay = new MapOverlay();
+
     let data;
     if (useSpotify) {
         const idSpotify = urlSpotify.includes("http") ? urlSpotify.slice(urlSpotify.lastIndexOf('/')+1, urlSpotify.indexOf('?')) : urlSpotify;
@@ -28,10 +32,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         renderData(data);
     }
-
-    genres_overlay = new GenresOverlay();
-    timeline_overlay = new TimelineOverlay();
-    map_overlay = new MapOverlay();
 
     {
         const songs = data.tracks;
@@ -255,6 +255,7 @@ function renderData(playlist) {
 
         a_song.href = `/song.html?idCanzone=${songUri}`;
         a_song.textContent = song;
+        a_song.title = song;
         td_song.appendChild(a_song);
 
         td_song.appendChild(document.createElement("br"));
@@ -265,11 +266,13 @@ function renderData(playlist) {
                   artistId = s.artists[i].id;
             a_autor.href = `/artist.html?idAutore=${artistId}`;
             a_autor.textContent = artist;
+            a_autor.title = artist;
             td_song.appendChild(a_autor);
         }
 
         a_album.href = `/album.html?idAlbum=${albumId}`;
         a_album.textContent = album;
+        a_album.title = album;
         td_album.appendChild(a_album);
         
         td_duration.textContent = formatMs(s.duration_ms);

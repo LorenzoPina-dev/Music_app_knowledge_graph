@@ -283,6 +283,7 @@ function renderData(wikidata, autore, album, idAutore) {
                 for (let i=0; i<premi_count; i++) {
                     const a = document.createElement("a");
                     a.textContent = wikidata.premi[i].nome;
+                    a.title = wikidata.premi[i].nome;
                     if (wikidata.premi[i].artista !== undefined)
                         a.href = `/artist.html?idAutore=${wikidata.premi[i].artista.codice}` 
                     else
@@ -314,6 +315,7 @@ function renderData(wikidata, autore, album, idAutore) {
         const al = album.items[i];
 
         a.textContent = al.name;
+        a.title = al.name;
 
         img.src = al.images[1].url; // 300x300
         div.appendChild(img);

@@ -71,6 +71,7 @@ function renderData(album) {
               artist_id = artists[i].id;
 
         a.textContent = artist_name;
+        a.title = artist_name;
         a.href = `/artist.html?idAutore=${artist_id}`;
 
         td_artists.appendChild(a);
@@ -117,20 +118,23 @@ function renderData(album) {
 
         a_song.href = `/song.html?idCanzone=${song_uri}`;
         a_song.textContent = song_name;
+        a_song.title = song_name;
         td_song.appendChild(a_song);
 
         td_song.appendChild(document.createElement("br"));
 
         a_autor.href = `/artist.html?idAutore=${main_artist_id}`;
+        a_autor.title = main_artist_name;
         a_autor.textContent = main_artist_name;
         td_song.appendChild(a_autor);
 
         for (let i=1; i<artists.length; i++) {
-            const artist_id = artists[i].id;
+            const artist_id = artists[i].id,
                   artist_name = artists[i].name,
                   a = document.createElement("a");
 
             a.textContent = artist_name;
+            a.title = artist_name;
             a.href = `/artist.html?idAutore=${artist_id}`;
             td_song.appendChild(a);
         }
