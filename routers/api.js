@@ -2,14 +2,15 @@ const express = require("express"),
       fs=require("fs");
 const 
       router = express.Router(),
-      { getSongs, getPlaylistDyId/*,getNames,getListPlaylists*/ } = require('./../utils/LeggiFile.js'),
-      datasetSongs = getSongs(),
-      playlists=JSON.parse(fs.readFileSync("nomiPlaylist.json"));
+      { getSongs, getPlaylistDyId,getLastId/*,getNames,getListPlaylists*/ } = require('./../utils/LeggiFile.js'),
+      datasetSongs = [],//getSongs(),
+      playlists=JSON.parse(fs.readFileSync("nomiPlaylist.json")),
+      lastId=getLastId();
 
-    //fs.writeFileSync("nomiPlaylist.json", JSON.stringify(nomi));
+    //fs.writeFileSync("nomiPlaylist.json", JSON.stringify(getNames()));
       
 router.get('/numeroPlaylist', (_, res) => {
-    res.json({ numPlaylist: playlists.length });
+    res.json({ numPlaylist: lastId });
 });
 
 
@@ -18,9 +19,8 @@ router.get('/getNplaylist', (req, res) => {
     let filtro = req.query.filtro,
           partenza = req.query.start ?? 0,
           quanti = req.query.max ?? 50;
-
     if (filtro === undefined) {
-        const risp = playlists.slice(partenza, quanti).map((p,i)=>{return {pid:i+partenza, name:p}});
+        const risp = playlists.slice(partenza, Math.min(lastId-partenza,quanti)).map((p,i)=>{return {pid:i+partenza, name:p}});
         res.json(risp);
         return;
     }
@@ -29,7 +29,7 @@ router.get('/getNplaylist', (req, res) => {
     let trovati=0;
     let i=0;
     filtro=filtro.toLowerCase();
-    while(i<playlists.length && risp.length<quanti){
+    while(i<lastId && risp.length<quanti){
         var playlist = playlists[i];
         if (playlist.toLowerCase().includes(filtro)) {
             trovati++;
