@@ -168,7 +168,15 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (e.button === 0) {
                 if (genres_overlay.render_object === null)
                     genres_overlay.render("Generi", `informazioni wikidata su ${data.dati_genres.length} composizioni.`,
-                        data.dati_genres.map(v => ({name:v.nome, y:v.canzoni.length/tot_genres*100})))
+                        data.dati_genres.map(v => {
+                            let ogg={name:v.nome, y:v.canzoni.length/tot_genres*100}
+                            if(v.suggerimento.length > 0)
+                            {
+                                ogg.url=`/song.html?idCanzone=${v.suggerimento[0]?.codice.value}`;
+                                ogg.name+=v.suggerimento[0]?.canzoniLabel.value;
+                            }  
+                            console.log(ogg);
+                            return ogg}))
 
                 else
                     genres_overlay.toggle_overlay();

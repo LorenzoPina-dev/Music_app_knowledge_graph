@@ -182,11 +182,27 @@ function render_genres(render_target_id, title, subtitle, points) {
                 cursor: 'pointer',
                 dataLabels: [{
                     enabled: true,
-                    distance: 20
+                    distance: 20,
+                    useHTML: true, // Permette l'uso di HTML nei label
+                    events: {
+                        click: function () {
+                            if (this.options.url) {
+                                window.location.assign(this.options.url);
+                            }
+                        }
+                    },
                 }, {
                     enabled: true,
                     distance: -40,
                     format: '{point.percentage:.1f}%',
+                    useHTML: true,
+                    events: {
+                        click: function () {
+                            if (this.options.url) {
+                                window.location.assign(this.options.url);
+                            }
+                        }
+                    },
                     style: {
                         fontSize: '1.2em',
                         textOutline: 'none',

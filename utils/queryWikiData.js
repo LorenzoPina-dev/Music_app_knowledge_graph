@@ -111,7 +111,8 @@ select distinct ?artista ?artistaLabel ?codice where {
 const getAltraCanzoneByGenere=(codiceGenere,codiciArtisti) => `
 select distinct ?canzoni ?canzoniLabel ?codice where {
         ?canzoni wdt:P136| wdt:P361/wdt:P136 | wdt:P1433/wdt:P136 wd:${codiceGenere};
-                 wdt:P2207|wdt:P2205 ?codice. 
+                 wdt:P2207|wdt:P2205 ?codice;
+                 (wdt:P86|wdt:P175|wdt:P162)/wdt:P658|(wdt:P86|wdt:P175|wdt:P162)  ?artista.
         FILTER(?artista NOT iN (${codiciArtisti.map(q => `wd:${q}`).join(", ")}) ).
         SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
 }LIMIT 1`;

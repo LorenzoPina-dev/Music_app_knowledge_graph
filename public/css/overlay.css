@@ -85,7 +85,7 @@ body.noscroll {
     overflow: hidden;
 }
 
-.highcharts-tooltip, .highcharts-label {
+.highcharts-tooltip, .highcharts-label, .highcharts-data-label {
     pointer-events: auto !important;  /* Allow interactions inside the tooltip */
 }
 
