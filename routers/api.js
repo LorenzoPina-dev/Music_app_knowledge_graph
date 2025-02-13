@@ -51,7 +51,7 @@ router.get('/getNplaylist', (req, res) => {
 
     const playlist = getPlaylistDyId(idPlaylist).filter(p => p.pid === idPlaylist)[0];
     if (playlist === undefined) {
-        res.sendStatus(400);
+        res.status(400).json({ error:"idPlaylist non trovato"});
         return;
     }
 
